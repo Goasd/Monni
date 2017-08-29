@@ -29,7 +29,8 @@ class UrbanServer(Server):
 
             is_player = re.compile(r'^(-?)(\d+) (\d+) "(.*)"')
             if is_player.match(data[i]):
-                players.append(data[i].split(' ', 2))
+                splited_data = data[i].split(' ', 2)
+                players.append([splited_data[0], splited_data[1], self.clean_color_code(str(splited_data[2])[1:-1])])
             else:
                 variables += str(data[i])
 
