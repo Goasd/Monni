@@ -1,4 +1,7 @@
 language: python
+sudo: required
+dist: trusty
+group: deprecated-2017Q2
 python:
   - "3.5"
 install: "pip install -r requirements.txt"
