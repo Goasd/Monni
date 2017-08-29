@@ -2,7 +2,7 @@ import threading
 
 import gi
 
-from ..games.loading import Load, servers
+from ..games.loading import Load, servers, l
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
@@ -135,19 +135,18 @@ class ListPlayerData(Gtk.ListBoxRow):
 
 class ServerPage:
 
-    def __init__(self, win, data, load, home):
+    def __init__(self, win, load, home):
         self.win = win
-        self.data = data
+        self.data = None
         self.load = load
         self.home = home
 
-    def setup_serverpage(self):
-
-        self.reset()
-
-        self.win.set_title("%s - Monni" % self.data.hostname)
+    def setup_serverpage(self, data):
+        self.data = data
 
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
+        self.win.set_title("%s - Monni" % self.data.hostname)
 
         notebook = Gtk.Notebook()
         box_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -188,14 +187,6 @@ class ServerPage:
         r = self.setup_colum_names()
         players_notebook.pack_start(r, False, False, 0)
         players_notebook.pack_end(players_window, True, True, 0)
-
-    def reset(self):
-        a = self.win.get_children()
-        for x in a:
-            if isinstance(x, Gtk.HeaderBar):
-                break
-            else:
-                self.win.remove(x)
 
     def setup_config(self, notebook):
 
@@ -283,23 +274,24 @@ class ServerPage:
         self.players_list.set_sort_func(sort_func, None, False)
 
     def back_button_clicked(self, button):
-        self.box_outer.destroy()
-        self.home = Home(self.win, self.load)
-        self.home.setup_home()
+        self.win.remove(self.box_outer)
+        self.home.show_home()
 
     def reload_data(self, button):
         self.data.update_data()
-        self.setup_serverpage()
+        self.win.remove(self.box_outer)
+        self.setup_serverpage(self.data)
 
 
 class ListServerData(Gtk.ListBoxRow):
 
-    def __init__(self, data, win, load, home):
+    def __init__(self, data, win, load, home, page):
         super(Gtk.ListBoxRow, self).__init__()
         self.data = data
         self.win = win
         self.load = load
         self.home = home
+        self.page = page
 
         self.a = Gtk.Label(data.hostname)
         self.a.set_padding(10,10)
@@ -326,7 +318,8 @@ class ListServerData(Gtk.ListBoxRow):
         thread.start()
 
     def select_server(self):
-        ServerPage(self.win, self.data, self.load, self.home).setup_serverpage()
+        self.win.remove(self.home.stack_box)
+        self.page.setup_serverpage(self.data)
 
     def update(self):
         self.a.set_markup('<span size="x-large">%s</span>\n<span>%s:%s</span>' %
@@ -355,13 +348,16 @@ class Home:
         self.servers.set_vexpand(True)
         self.servers.set_border_width(30)
 
+        self.page = ServerPage(self.win, self.load, self)
+        self.stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
+    def show_home(self):
+        self.win.add(self.stack_box)
+        self.set_title()
+
     def setup_home(self):
 
-        self.reset()
-
         self.setup_header()
-
-        stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         stack = Gtk.Stack()
         stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
@@ -375,10 +371,10 @@ class Home:
         stack_switcher.set_valign(Gtk.Align.START)
         stack_switcher.set_halign(Gtk.Align.CENTER)
 
-        stack_box.pack_start(stack_switcher, False, True, 0)
-        stack_box.pack_end(stack, True, True, 0)
+        self.stack_box.pack_start(stack_switcher, False, True, 0)
+        self.stack_box.pack_end(stack, True, True, 0)
 
-        self.win.add(stack_box)
+        self.win.add(self.stack_box)
         self.win.show_all()
 
     def setup_server_lists(self, stack):
@@ -440,9 +436,10 @@ class Home:
         seperator = Gtk.Separator.new(Gtk.Orientation.VERTICAL)
         header.pack_end(seperator)
         self.win.set_titlebar(header)
+        self.set_title()
 
+    def set_title(self):
         self.win.set_title("Monni")
-        self.win.set_border_width(10)
 
     def quit(self, a):
         self.win.destroy()
@@ -494,16 +491,8 @@ class Home:
         return self.servers
 
     def add_server_in_servers(self, server):
-        self.servers.add(ListServerData(server, self.win, self.load, self))
+        self.servers.add(ListServerData(server, self.win, self.load, self, self.page))
         self.servers.show_all()
-
-    def reset(self):
-        a = self.win.get_children()
-        for x in a:
-            if isinstance(x, Gtk.HeaderBar):
-                pass
-            else:
-                self.win.remove(x)
 
     def update_servers(self, button):
         for server in self.servers.get_children():
@@ -519,7 +508,9 @@ class Home:
         def sort_func(row_1, row_2, data, notify_destroy):
             return len(row_1.data.playerlist) < len(row_2.data.playerlist)
 
+        l.acquire()
         self.servers.set_sort_func(sort_func, None, False)
+        l.release()
 
     def new_server(self, button):
         NewServer(self.win, self.load)
