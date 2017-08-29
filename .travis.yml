@@ -6,6 +6,4 @@ addons:
   apt:
     packages:
      - python3-gi
-     - gir1.2-gtk-3.0
-     - gir1.2-glib-2.0
 script: python3 -m unittest
