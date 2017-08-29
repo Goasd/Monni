@@ -6,4 +6,7 @@ addons:
   apt:
     packages:
      - python3-gi
+     - gir1.2-gtk-3.0
+virtualenv:
+  system_site_packages: true
 script: python3 -m unittest
