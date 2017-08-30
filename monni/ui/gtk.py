@@ -389,7 +389,7 @@ class ServerPage:
 
     def play_button(self, button):
         location = self.load.settings_get_game_location(self.data.game)
-        os.system('%s +set net_ip %s +set net_port %s' % (location, self.data.host, self.data.port))
+        os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
 
 
 class ListServerData(Gtk.ListBoxRow):
