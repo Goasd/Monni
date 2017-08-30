@@ -193,25 +193,34 @@ class ServerPage:
         config_notebook = Gtk.Box()
         config_notebook.set_border_width(10)
 
-        notebook.append_page(
-            config_notebook,
-            Gtk.Label('Config')
-        )
+        notebook.append_page(config_notebook, Gtk.Label('Config'))
 
         config_window = Gtk.ScrolledWindow()
         config_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        configbox = Gtk.ListBox()
-        configbox.set_border_width(30)
-        configbox.set_hexpand(True)
-        configbox.set_vexpand(True)
+        configsbox = Gtk.ListBox()
+        configsbox.set_border_width(30)
+        configsbox.set_hexpand(True)
+        configsbox.set_vexpand(True)
         configs = self.data.server_configs()
         for key, value in configs.items():
+            conf_row = Gtk.Box()
+
             a = Gtk.Label()
             a.set_padding(10, 10)
-            a.set_markup("%s %s" % (key, value))
+            a.set_markup("%s" % (key))
+            a.set_valign(Gtk.Align.START)
+            a.set_halign(Gtk.Align.START)
+            conf_row.pack_start(a, True, True, 0)
 
-            configbox.add(a)
-        config_window.add(configbox)
+            b = Gtk.Label()
+            b.set_padding(10, 10)
+            b.set_markup("%s" % (value))
+            b.set_halign(Gtk.Align.END)
+            conf_row.pack_end(b, True, True, 0)
+
+            configsbox.add(conf_row)
+
+        config_window.add(configsbox)
 
         config_notebook.add(config_window)
 
