@@ -11,7 +11,7 @@ class UrbanServer(Server):
 
     def __init__(self, host, port):
         super().__init__(host, port)
-        self.game = 'urbanterror'
+        self.game = 'Urban Terror'
         self.server_data = UrbanConnect(self.host, self.port)
         self.update_data()
 

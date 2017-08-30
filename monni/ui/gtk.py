@@ -1,3 +1,4 @@
+import os
 import threading
 
 import gi
@@ -20,22 +21,55 @@ class Settings:
         self.pop.set_size_request(450, 300)
         self.setup_header()
         self.pop.show_all()
-        self.pop.set_modal(True)
 
         self.select_game()
 
+    def on_tree_selection_changed(self, selection):
+        model, treeiter = selection.get_selected()
+        if treeiter != None:
+            self.game_settings(model[treeiter][0])
+
     def select_game(self):
         self.pop.set_title('Settings - Monni')
-        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        store = Gtk.ListStore(str)
+        store.append(["Urban Terror"])
 
-        button = Gtk.Button()
-        button.set_label('Urban terror')
-        button.connect('clicked', self.add_host_and_port, 'urbanterror')
-        button.set_size_request(10, 10)
-        self.box_outer.pack_start(button, True, True, 0)
+        tree = Gtk.TreeView(store)
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn("Game", renderer, text=0)
+        tree.append_column(column)
 
+        select = tree.get_selection()
+        select.connect("changed", self.on_tree_selection_changed)
+
+        self.box_outer.pack_start(tree, True, True, 0)
         self.box_outer.show_all()
         self.pop.add(self.box_outer)
+
+    def game_settings(self, game):
+        settings_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
+        button1 = Gtk.Button("Choose game ")
+        button1.connect("clicked", self.on_file_clicked, game)
+        settings_box.add(button1)
+
+        self.box_outer.pack_start(settings_box, True, True, 0)
+        self.box_outer.show_all()
+
+    def on_file_clicked(self, widget, game):
+        dialog = Gtk.FileChooserDialog("Please choose a file", self.pop,
+            Gtk.FileChooserAction.OPEN,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            self.load.settings_set_game_location(game, dialog.get_filename())
+
+        dialog.destroy()
+
 
     def setup_header(self):
         header = Gtk.HeaderBar()
@@ -354,7 +388,8 @@ class ServerPage:
         self.back(None)
 
     def play_button(self, button):
-        pass
+        location = self.load.settings_get_game_location(self.data.game)
+        os.system('%s +set net_ip %s +set net_port %s' % (location, self.data.host, self.data.port))
 
 
 class ListServerData(Gtk.ListBoxRow):

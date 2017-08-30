@@ -1,4 +1,5 @@
 import threading
+import configparser
 
 from ..games.urbanterror.urbanterror import UrbanServer
 
@@ -14,7 +15,21 @@ class Load:
         self.file = 'servers'
 
     def settings(self):
-        pass
+        config = configparser.ConfigParser()
+        config.read("config.ini")
+        print(config)
+
+    def settings_set_game_location(self, game, location):
+        config = configparser.ConfigParser()
+        config[str(game)] = {}
+        config[str(game)]['location'] = location
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+
+    def settings_get_game_location(self, game):
+        config = configparser.ConfigParser()
+        config.read("config.ini")
+        return config[game]['location']
 
     def servers(self):
 
@@ -45,7 +60,7 @@ class Load:
 
     def add_server(self, hostname, port, game):
 
-        if game == 'urbanterror':
+        if game == 'Urban Terror':
             new_server = UrbanServer(hostname, port)
         else:
             return ValueError
