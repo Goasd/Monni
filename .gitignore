@@ -1,3 +1,4 @@
 *.pyc
 /.*/
 /monni/servers
+/monni/config.ini
