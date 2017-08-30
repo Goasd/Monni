@@ -8,6 +8,52 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
 
 
+class Settings:
+
+    def __init__(self, win, load):
+        self.load = load
+        self.win = win
+
+        self.pop = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+        self.pop.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+        self.pop.set_transient_for(win)
+        self.pop.set_size_request(450, 300)
+        self.setup_header()
+        self.pop.show_all()
+        self.pop.set_modal(True)
+
+        self.select_game()
+
+    def select_game(self):
+        self.pop.set_title('Settings - Monni')
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
+        button = Gtk.Button()
+        button.set_label('Urban terror')
+        button.connect('clicked', self.add_host_and_port, 'urbanterror')
+        button.set_size_request(10, 10)
+        self.box_outer.pack_start(button, True, True, 0)
+
+        self.box_outer.show_all()
+        self.pop.add(self.box_outer)
+
+    def setup_header(self):
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(False)
+
+        button = Gtk.Button()
+        button.set_relief(Gtk.ReliefStyle.NONE)
+        img = Gtk.Image.new_from_icon_name("window-close-symbolic", Gtk.IconSize.MENU)
+        button.set_image(img)
+        button.connect("clicked", self.quit)
+
+        header.pack_end(button)
+        self.pop.set_titlebar(header)
+
+    def quit(self, button):
+        self.pop.destroy()
+
+
 class NewServer:
 
     def __init__(self, win, load):
@@ -26,42 +72,42 @@ class NewServer:
 
     def select_game(self):
         self.pop.set_title('Add server: Select game')
-        box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         button = Gtk.Button()
         button.set_label('Urban terror')
         button.connect('clicked', self.add_host_and_port, 'urbanterror')
         button.set_size_request(10, 10)
-        box_outer.pack_start(button, True, True, 0)
+        self.box_outer.pack_start(button, True, True, 0)
 
-        box_outer.show_all()
-        self.pop.add(box_outer)
+        self.box_outer.show_all()
+        self.pop.add(self.box_outer)
 
     def add_host_and_port(self, button, game):
-        self.reset()
+        self.pop.remove(self.box_outer)
         self.pop.set_title('Add server: Hostname and port')
 
-        box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.hostname = Gtk.Entry()
         self.hostname.set_text("Hostname")
-        box_outer.pack_start(self.hostname, True, True, 0)
+        self.box_outer.pack_start(self.hostname, True, True, 0)
 
         self.port = Gtk.Entry()
         self.port.set_text("Port")
-        box_outer.pack_start(self.port, True, True, 0)
+        self.box_outer.pack_start(self.port, True, True, 0)
 
         button = Gtk.Button()
         button.set_label('Save')
         button.connect('clicked', self.save_server, self.hostname.get_text, self.port.get_text, game)
         button.set_size_request(10, 10)
-        box_outer.pack_start(button, True, True, 0)
+        self.box_outer.pack_start(button, True, True, 0)
 
-        box_outer.show_all()
-        self.pop.add(box_outer)
+        self.box_outer.show_all()
+        self.pop.add(self.box_outer)
 
     def save_server(self, button, hostname, port, game):
-        self.load.add_new_server(hostname(), port(), game)
+        self.load.add_new_server(hostname(), int(port()), game)
         self.pop.destroy()
 
     def setup_header(self):
@@ -77,17 +123,8 @@ class NewServer:
         header.pack_end(button)
         self.pop.set_titlebar(header)
 
-    def quit(self, a):
+    def quit(self, button):
         self.pop.destroy()
-
-    def reset(self):
-        a = self.pop.get_children()
-        for x in a:
-
-            if isinstance(x, Gtk.HeaderBar):
-                pass
-            else:
-                self.pop.remove(x)
 
 
 class ListPlayerData(Gtk.ListBoxRow):
@@ -161,6 +198,7 @@ class ServerPage:
 
         self.box_outer.pack_start(box_notebook, True, True, 0)
 
+        self.setup_down_buttons()
         self.win.add(self.box_outer)
         self.win.show_all()
 
@@ -226,18 +264,38 @@ class ServerPage:
 
     def setup_up_buttons(self):
         button_box = Gtk.Box(spacing=6)
-        button_box.set_homogeneous(False)
+
         back_button = Gtk.Button()
         back_button.set_label('Back')
-        back_button.connect('clicked', self.back_button_clicked)
+        back_button.connect('clicked', self.back)
+
         button_box.pack_start(back_button, True, True, 0)
+
         reload_button = Gtk.Button()
         reload_button.set_label('Update')
         reload_button.connect('clicked', self.reload_data)
         reload_button.set_size_request(-1, -1)
+
         button_box.pack_end(reload_button, True, True, 0)
 
         self.box_outer.pack_start(button_box, False, False, 0)
+
+    def setup_down_buttons(self):
+        button_box = Gtk.Box(spacing=6)
+
+        delete_button = Gtk.Button()
+        delete_button.set_label('Delete server')
+        delete_button.connect('clicked', self.delete_server)
+
+        button_box.pack_start(delete_button, True, True, 0)
+
+        play_button = Gtk.Button()
+        play_button.set_label('Play')
+        play_button.connect('clicked', self.play_button)
+
+        button_box.pack_start(play_button, True, True, 0)
+
+        self.box_outer.pack_end(button_box, False, False, 0)
 
     def setup_colum_names(self):
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -282,7 +340,7 @@ class ServerPage:
 
         self.players_list.set_sort_func(sort_func, None, False)
 
-    def back_button_clicked(self, button):
+    def back(self, button):
         self.win.remove(self.box_outer)
         self.home.show_home()
 
@@ -290,6 +348,13 @@ class ServerPage:
         self.data.update_data()
         self.win.remove(self.box_outer)
         self.setup_serverpage(self.data)
+
+    def delete_server(self, button):
+        self.load.delete_server(self.data)
+        self.back(None)
+
+    def play_button(self, button):
+        pass
 
 
 class ListServerData(Gtk.ListBoxRow):
@@ -437,6 +502,14 @@ class Home:
 
         button = Gtk.Button()
         button.set_relief(Gtk.ReliefStyle.NONE)
+        img = Gtk.Image.new_from_icon_name("emblem-system-symbolic", Gtk.IconSize.MENU)
+        button.set_image(img)
+        button.connect("clicked", self.settings)
+
+        header.pack_start(button)
+
+        button = Gtk.Button()
+        button.set_relief(Gtk.ReliefStyle.NONE)
         img = Gtk.Image.new_from_icon_name("window-close-symbolic", Gtk.IconSize.MENU)
         button.set_image(img)
         button.connect("clicked", self.quit)
@@ -450,7 +523,10 @@ class Home:
     def set_title(self):
         self.win.set_title("Monni")
 
-    def quit(self, a):
+    def settings(self, button):
+        Settings(self.win, self.load)
+
+    def quit(self, button):
         self.win.destroy()
 
     def setup_search(self):
@@ -527,6 +603,11 @@ class Home:
     def server_created(self, server):
         self.add_server_in_servers(server)
 
+    def server_deleted(self, delete_server):
+        for server in self.servers:
+            if server.data == delete_server:
+                self.servers.remove(server)
+
 
 class Window(Gtk.ApplicationWindow):
 
@@ -540,6 +621,7 @@ class Window(Gtk.ApplicationWindow):
         self.home.setup_home()
 
         load.call_when_server_created = self.home.server_created
+        load.call_when_server_deleted = self.home.server_deleted
         load.servers()
 
 

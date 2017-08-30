@@ -10,6 +10,7 @@ class Load:
 
     def __init__(self):
         self.call_when_server_created = lambda: None
+        self.call_when_server_deleted = lambda: None
         self.file = 'servers'
 
     def settings(self):
@@ -65,4 +66,20 @@ class Load:
         server_list_file.close()
 
         self.add_server(hostname, port, game)
+
+    def delete_server(self, server):
+        server_list_file = open(self.file, 'r')
+        server_list = eval(server_list_file.read())
+        print(server_list)
+        print(server)
+        server_list.remove([server.host, server.port, server.game])
+
+        server_list_file = open(self.file, 'w')
+        server_list_file.write(repr(server_list))
+        server_list_file.close()
+
+        l.acquire()
+        servers.remove(server)
+        self.call_when_server_deleted(server)
+        l.release()
 
