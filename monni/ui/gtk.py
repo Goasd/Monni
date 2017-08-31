@@ -50,9 +50,31 @@ class Settings:
     def game_settings(self, game):
         settings_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-        button1 = Gtk.Button("Choose game ")
+        setting_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+
+        game_name = Gtk.Label()
+        game_name.set_markup('<span size="x-large">%s</span>' % game)
+        game_name.set_valign(Gtk.Align.START)
+        game_name.set_halign(Gtk.Align.START)
+
+        settings_box.add(game_name)
+
+        game_name = Gtk.Label()
+        game_name.set_markup('Game location')
+        game_name.set_valign(Gtk.Align.CENTER)
+        game_name.set_halign(Gtk.Align.CENTER)
+
+        setting_box.add(game_name)
+
+
+        folder = Gtk.Entry()
+        folder.set_text(self.load.settings_get_game_location(game))
+        setting_box.add(folder)
+        button1 = Gtk.Button("...")
         button1.connect("clicked", self.on_file_clicked, game)
-        settings_box.add(button1)
+        setting_box.add(button1)
+
+        settings_box.add(setting_box)
 
         self.box_outer.pack_start(settings_box, True, True, 0)
         self.box_outer.show_all()
@@ -69,7 +91,6 @@ class Settings:
             self.load.settings_set_game_location(game, dialog.get_filename())
 
         dialog.destroy()
-
 
     def setup_header(self):
         header = Gtk.HeaderBar()
@@ -308,7 +329,6 @@ class ServerPage:
         reload_button = Gtk.Button()
         reload_button.set_label('Update')
         reload_button.connect('clicked', self.reload_data)
-        reload_button.set_size_request(-1, -1)
 
         button_box.pack_end(reload_button, True, True, 0)
 
