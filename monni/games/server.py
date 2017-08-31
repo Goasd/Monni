@@ -1,8 +1,9 @@
 class Server:
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, call_when_server_updated):
         self.host = host
         self.port = int(port)
+        self.call_when_server_updated = call_when_server_updated
         self.game = None
         self.hostname = None
         self.variables = {}

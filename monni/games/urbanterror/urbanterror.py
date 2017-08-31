@@ -9,8 +9,8 @@ SOCKET_TIMEOUT = 3
 
 class UrbanServer(Server):
 
-    def __init__(self, host, port):
-        super().__init__(host, port)
+    def __init__(self, host, port, call_when_server_updated):
+        super().__init__(host, port, call_when_server_updated)
         self.game = 'Urban Terror'
         self.server_data = UrbanConnect(self.host, self.port)
         self.update_data()
@@ -47,6 +47,8 @@ class UrbanServer(Server):
         self.max_players = self.variables['sv_maxclients']
         self.hostname = self.clean_color_code(self.variables['sv_hostname'])
         self.mapname = self.variables['mapname']
+
+        self.call_when_server_updated(self)
 
     def server_configs(self):
         return self.variables

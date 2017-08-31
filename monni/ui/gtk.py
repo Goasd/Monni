@@ -1,12 +1,15 @@
 import os
 import threading
+import time
 
 import gi
 
-from ..games.loading import Load, servers, l
+from ..games.loading import Load, servers
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
+
+la = threading.Lock()
 
 
 class Settings:
@@ -480,6 +483,8 @@ class Home:
         self.page = ServerPage(self.win, self.load, self)
         self.stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
+        self.last_servers_update = time.time()
+
     def show_home(self):
         self.win.add(self.stack_box)
         self.set_title()
@@ -635,33 +640,47 @@ class Home:
         self.servers.show_all()
 
     def update_servers(self, button):
+        if  time.time() - self.last_servers_update < 4:
+            return
         for server in self.servers.get_children():
 
             thread = threading.Thread(target=self.update_server, args=(server,))
             thread.daemon = True
             thread.start()
 
+        self.last_servers_update = time.time()
+
     def update_server(self, server):
         server.data.update_data()
-        server.update()
-
-        def sort_func(row_1, row_2, data, notify_destroy):
-            return len(row_1.data.playerlist) < len(row_2.data.playerlist)
-
-        l.acquire()
-        self.servers.set_sort_func(sort_func, None, False)
-        l.release()
 
     def new_server(self, button):
         NewServer(self.win, self.load)
 
     def server_created(self, server):
+        la.acquire()
         self.add_server_in_servers(server)
+        la.release()
 
     def server_deleted(self, delete_server):
+        la.acquire()
         for server in self.servers:
             if server.data == delete_server:
                 self.servers.remove(server)
+        la.release()
+
+    def server_updated(self, update_server):
+        la.acquire()
+
+        for server in self.servers:
+            if server.data == update_server:
+                server.update()
+
+        def sort_func(row_1, row_2, data, notify_destroy):
+            return len(row_1.data.playerlist) < len(row_2.data.playerlist)
+
+        self.servers.set_sort_func(sort_func, None, False)
+
+        la.release()
 
 
 class Window(Gtk.ApplicationWindow):
@@ -677,6 +696,7 @@ class Window(Gtk.ApplicationWindow):
 
         load.call_when_server_created = self.home.server_created
         load.call_when_server_deleted = self.home.server_deleted
+        load.call_when_server_updated = self.home.server_updated
         load.servers()
 
 

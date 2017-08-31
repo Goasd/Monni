@@ -12,6 +12,7 @@ class Load:
     def __init__(self):
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
+        self.call_when_server_updated = lambda: None
         self.file = 'servers'
 
     def settings(self):
@@ -61,14 +62,12 @@ class Load:
     def add_server(self, hostname, port, game):
 
         if game == 'Urban Terror':
-            new_server = UrbanServer(hostname, port)
+            new_server = UrbanServer(hostname, port, self.call_when_server_updated)
         else:
             return ValueError
 
-        l.acquire()
         servers.append(new_server)
         self.call_when_server_created(new_server)
-        l.release()
 
     def add_new_server(self, hostname, port, game):
 
@@ -93,8 +92,6 @@ class Load:
         server_list_file.write(repr(server_list))
         server_list_file.close()
 
-        l.acquire()
         servers.remove(server)
         self.call_when_server_deleted(server)
-        l.release()
 
