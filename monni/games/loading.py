@@ -1,7 +1,8 @@
 import threading
 import configparser
 
-from ..games.urbanterror.urbanterror import UrbanServer
+from .game_server import GameServer
+from .urbanterror.urbanterror import UrbanServer
 
 l = threading.Lock()
 servers = []
@@ -32,6 +33,15 @@ class Load:
         config.read("config.ini")
         return config[game]['location']
 
+    def update_server_data(self, server):
+
+        if server.game == 'Urban Terror':
+            UrbanServer(server)
+        else:
+            return ValueError
+
+        self.call_when_server_updated(server)
+
     def servers(self):
 
         default_servers = [
@@ -61,13 +71,17 @@ class Load:
 
     def add_server(self, hostname, port, game):
 
+        gameserver = GameServer()
+        gameserver.game = game
+        gameserver.port = port
+        gameserver.host = hostname
+
         if game == 'Urban Terror':
-            new_server = UrbanServer(hostname, port, self.call_when_server_updated)
+            UrbanServer(gameserver)
         else:
             return ValueError
 
-        servers.append(new_server)
-        self.call_when_server_created(new_server)
+        self.call_when_server_created(gameserver)
 
     def add_new_server(self, hostname, port, game):
 
@@ -84,14 +98,12 @@ class Load:
     def delete_server(self, server):
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
-        print(server_list)
-        print(server)
+
         server_list.remove([server.host, server.port, server.game])
 
         server_list_file = open(self.file, 'w')
         server_list_file.write(repr(server_list))
         server_list_file.close()
 
-        servers.remove(server)
         self.call_when_server_deleted(server)
 

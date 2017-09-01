@@ -2,6 +2,7 @@ import socket
 
 import re
 
+from ..player import Player
 from ..server import Server, Connect
 
 SOCKET_TIMEOUT = 3
@@ -9,10 +10,10 @@ SOCKET_TIMEOUT = 3
 
 class UrbanServer(Server):
 
-    def __init__(self, host, port, call_when_server_updated):
-        super().__init__(host, port, call_when_server_updated)
+    def __init__(self, gameserver):
+        super().__init__(gameserver)
         self.game = 'Urban Terror'
-        self.server_data = UrbanConnect(self.host, self.port)
+        self.server_data = UrbanConnect(self.gameserver.host, self.gameserver.port)
         self.update_data()
 
     def update_data(self):
@@ -29,26 +30,30 @@ class UrbanServer(Server):
 
             is_player = re.compile(r'^(-?)(\d+) (\d+) "(.*)"')
             if is_player.match(data[i]):
-                splited_data = data[i].split(' ', 2)
-                players.append([splited_data[0], splited_data[1], self.clean_color_code(str(splited_data[2])[1:-1])])
+                player_data = data[i].split(' ', 2)
+                player = Player()
+                player.name = self.clean_color_code(str(player_data[2]))[1:-1]
+                player.ping = player_data[1]
+                player.score = player_data[0]
+                players.append(player)
             else:
                 variables += str(data[i])
 
-        data = variables.split("\\")[1:]
-        self.playerlist = players
+        self.gameserver.playerlist = players
 
+        data = variables.split("\\")[1:]
         data = list(filter(None, data))
 
         assert len(data) % 2 == 0
         keys = data[0::2]
         values = data[1::2]
 
-        self.variables = dict(zip(keys, values))
-        self.max_players = self.variables['sv_maxclients']
-        self.hostname = self.clean_color_code(self.variables['sv_hostname'])
-        self.mapname = self.variables['mapname']
-
-        self.call_when_server_updated(self)
+        variables = dict(zip(keys, values))
+        self.gameserver.max_players = variables['sv_maxclients']
+        self.gameserver.players = len(players)
+        self.gameserver.hostname = self.clean_color_code(variables['sv_hostname'])
+        self.gameserver.map = variables['mapname']
+        self.gameserver.variables = variables
 
     def server_configs(self):
         return self.variables
