@@ -51,7 +51,7 @@ class ServerPage:
         self.home = home
         self.data = None
 
-    def setup_serverpage(self, data):
+    def setup(self, data):
         self.data = data
 
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -194,21 +194,21 @@ class ServerPage:
     def order_by_score(self, button, b):
 
         def sort_func(row_1, row_2, data, notify_destroy):
-            return int(row_1.score) < int(row_2.score)
+            return int(row_1.player.score) < int(row_2.player.score)
 
         self.players_list.set_sort_func(sort_func, None, False)
 
     def order_by_ping(self, button, b):
 
         def sort_func(row_1, row_2, data, notify_destroy):
-            return int(row_1.ping) > int(row_2.ping)
+            return int(row_1.player.ping) > int(row_2.player.ping)
 
         self.players_list.set_sort_func(sort_func, None, False)
 
     def order_by_name(self, button, b):
 
         def sort_func(row_1, row_2, data, notify_destroy):
-            return row_1.player > row_2.player
+            return row_1.player.name > row_2.player.name
 
         self.players_list.set_sort_func(sort_func, None, False)
 
@@ -219,7 +219,7 @@ class ServerPage:
     def reload_data(self, button):
         self.load.update_server_data(self.data)
         self.win.remove(self.box_outer)
-        self.setup_serverpage(self.data)
+        self.setup(self.data)
 
     def delete_server(self, button):
         self.load.delete_server(self.data)

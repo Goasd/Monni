@@ -1,6 +1,8 @@
 import threading
 import configparser
 
+from .list import List
+from .urbanterror.master import Master
 from .game_server import GameServer
 from .urbanterror.urbanterror import UrbanServer
 
@@ -33,6 +35,22 @@ class Load:
         config.read("config.ini")
         return config[game]['location']
 
+    def lists(self):
+        l = []
+        a = List()
+        a.url = 'master.urbanterror.info'
+        a.host = 'master.urbanterror.info'
+        a.port = 27900
+        a.game = 'Urban Terror'
+        a.servers = self.servers_in_list()
+        l.append(a)
+        return l
+
+    def servers_in_list(self):
+
+        s = Master()
+        return s.get_servers()
+
     def update_server_data(self, server):
 
         if server.game == 'Urban Terror':
@@ -45,7 +63,7 @@ class Load:
     def servers(self):
 
         default_servers = [
-            ['151.80.41.55', 27960, 'urbanterror']
+            ['151.80.41.55', 27960, 'Urban Terror']
         ]
 
         try:

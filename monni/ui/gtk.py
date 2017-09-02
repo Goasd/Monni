@@ -1,7 +1,7 @@
 import gi
 
-from monni.ui.server_lists import ServerLists
-from .favorites import Favorites
+from .lists.server_lists import ServerLists
+from .servers.favorites import Favorites
 from .settings import Settings
 from ..games.loading import Load
 

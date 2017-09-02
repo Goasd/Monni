@@ -1,3 +1,4 @@
+import html
 import socket
 
 import re
@@ -21,12 +22,12 @@ class UrbanServer(Server):
             self.server_data.update_status()
         except:
             return
-
-        data = str(self.server_data.data).split("\\n")
+        data = self.server_data.data
+        data = data.decode("latin-1").split("\n")
 
         variables = ''
         players = []
-        for i in range(1, len(data)):
+        for i in range(0, len(data)):
 
             is_player = re.compile(r'^(-?)(\d+) (\d+) "(.*)"')
             if is_player.match(data[i]):
@@ -37,23 +38,24 @@ class UrbanServer(Server):
                 player.score = player_data[0]
                 players.append(player)
             else:
-                variables += str(data[i])
+                variables += data[i]
 
         self.gameserver.playerlist = players
-
         data = variables.split("\\")[1:]
         data = list(filter(None, data))
 
         assert len(data) % 2 == 0
+
         keys = data[0::2]
         values = data[1::2]
 
         variables = dict(zip(keys, values))
         self.gameserver.max_players = variables['sv_maxclients']
         self.gameserver.players = len(players)
-        self.gameserver.hostname = self.clean_color_code(variables['sv_hostname'])
-        self.gameserver.map = variables['mapname']
+        self.gameserver.hostname = html.escape(self.clean_color_code(variables['sv_hostname']))
         self.gameserver.variables = variables
+        self.gameserver.map = variables['mapname']
+
 
     def server_configs(self):
         return self.variables
@@ -77,12 +79,12 @@ class UrbanConnect(Connect):
         sock.settimeout(SOCKET_TIMEOUT)
         sock.connect((self.host, self.port))
         sock.send(b'\xFF\xFF\xFF\xFFgetstatus')
-        data = sock.recv(8192)
+        data = sock.recv(8192)[19:-1]
         dataa = data
         data = str(data)
         info = data
         players = []
-        for a in data.split('\\n')[2:-1]:
+        for a in data.split('\\n'):
             players.append(a.split(' ', 2))
         info = info.split('\\')
         info = list(filter(None, info))

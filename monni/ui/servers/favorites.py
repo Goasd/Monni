@@ -6,7 +6,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from .new_server import NewServer
+from ..new_server import NewServer
 from .server_page import ServerPage
 
 
@@ -47,10 +47,10 @@ class ListServerData(Gtk.ListBoxRow):
 
     def select_server(self):
         self.win.remove(self.home.stack_box)
-        self.page.setup_serverpage(self.game_server)
+        self.page.setup(self.game_server)
 
     def update(self):
-        self.a.set_markup('<span size="x-large">%s</span>\n<span>%s:%s</span>' %
+        self.a.set_markup('<span size="x-large">%.30s</span>\n<span>%s:%s</span>' %
                           (
                               self.game_server.hostname,
                               self.game_server.host,
