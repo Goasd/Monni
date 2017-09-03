@@ -50,7 +50,7 @@ class ListData(Gtk.ListBoxRow):
     def update(self):
         self.a.set_markup('<span size="x-large">%s:%s</span>\n<span>%s</span>' %
                           (
-                              self.server_list.url,
+                              self.server_list.host,
                               self.server_list.port,
                               self.server_list.game
                           )

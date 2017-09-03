@@ -1,7 +1,7 @@
 import threading
 import configparser
 
-from .list import List
+from .serverslist import ServersList
 from .urbanterror.master import Master
 from .game_server import GameServer
 from .urbanterror.urbanterror import UrbanServer
@@ -17,6 +17,7 @@ class Load:
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
         self.file = 'servers'
+        self.masters = 'masters'
 
     def settings(self):
         config = configparser.ConfigParser()
@@ -36,20 +37,35 @@ class Load:
         return config[game]['location']
 
     def lists(self):
-        l = []
-        a = List()
-        a.url = 'master.urbanterror.info'
-        a.host = 'master.urbanterror.info'
-        a.port = 27900
-        a.game = 'Urban Terror'
-        a.servers = self.servers_in_list()
-        l.append(a)
-        return l
+        default_servers = [
+            ['master.urbanterror.info', 27900, 'Urban Terror']
+        ]
 
-    def servers_in_list(self):
+        try:
+            server_list_file = open(self.masters, 'r')
+            server_list = eval(server_list_file.read())
+        except FileNotFoundError:
+            server_list_file = open(self.masters, 'w')
+            server_list_file.write(repr(default_servers))
+            server_list_file.close()
+            server_list_file = open(self.masters, 'r')
+            server_list = eval(server_list_file.read())
+        server_list_file.close()
+
+        return self.servers_in_list(server_list)
+
+    def servers_in_list(self, master_servers):
 
         s = Master()
-        return s.get_servers()
+        l = []
+        for server in master_servers:
+            a = ServersList()
+            a.host = server[0]
+            a.port = server[1]
+            a.game = server[2]
+            a.servers = s.get_servers(server[0], server[1], server[2])
+            l.append(a)
+        return l
 
     def update_server_data(self, server):
 

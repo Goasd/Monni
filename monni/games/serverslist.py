@@ -1,4 +1,4 @@
-class List:
+class ServersList:
     def __init__(self):
         self.url = None
         self.servers = []

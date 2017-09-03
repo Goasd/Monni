@@ -7,11 +7,11 @@ class Master:
     def __init__(self):
         pass
 
-    def get_servers(self):
+    def get_servers(self, server, port, game):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(3)
-        sock.connect(('master.urbanterror.info', 27900))
+        sock.connect((server, port))
         sock.send(b'\xFF\xFF\xFF\xFFgetservers 68 empty full')
         l = []
         while True:
@@ -33,7 +33,7 @@ class Master:
                 gameserver = GameServer()
                 gameserver.host = str(ip)
                 gameserver.port = int(port)
-                gameserver.game = 'Urban Terror'
+                gameserver.game = game
                 servers.append(gameserver)
                 i += 7
         return servers
