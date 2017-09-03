@@ -1,10 +1,14 @@
+import os
+
 from gi.repository import Gtk
 
 
 class ServerChoices:
 
-    def __init__(self, win):
+    def __init__(self, win, load, server):
         self.win = win
+        self.load = load
+        self.server = server
 
     def setup(self):
         self.pop = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -25,8 +29,6 @@ class ServerChoices:
 
         header.pack_end(button)
         self.pop.set_titlebar(header)
-
-        self.pop.set_title('Add server: Select game')
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         button = Gtk.Button()
@@ -41,23 +43,28 @@ class ServerChoices:
 
         self.box_outer.show_all()
         self.pop.add(self.box_outer)
+        self.pop.show_all()
 
     def add_favorites(self, button):
-        pass
+        self.load.add_new_server(self.server.host, self.server.port, self.server.game)
+        self.pop.destroy()
 
     def start_game(self, button):
-        pass
+        location = self.load.settings_get_game_location(self.server.game)
+        os.system('%s +connect %s:%s &' % (location, self.server.host, self.server.port))
+        self.pop.destroy()
 
     def quit(self, button):
-        pass
+        self.pop.destroy()
 
 
 class ServerData(Gtk.ListBoxRow):
 
-    def __init__(self, server, win):
+    def __init__(self, server, win, load):
         super(Gtk.ListBoxRow, self).__init__()
         self.game_server = server
         self.win = win
+        self.load = load
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         row.set_hexpand(False)
@@ -98,7 +105,7 @@ class ServerData(Gtk.ListBoxRow):
 
     def select_server(self):
         print(self.game_server.hostname)
-        s = ServerChoices(self.win)
+        s = ServerChoices(self.win, self.load, self.game_server)
         s.setup()
 
 class ListPage:
@@ -137,7 +144,7 @@ class ListPage:
         servers = self.data.servers
 
         for server in servers:
-            self.server_list.add(ServerData(server, self.win))
+            self.server_list.add(ServerData(server, self.win, self.load))
 
             def sort_func(row_1, row_2, data, notify_destroy):
                 return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
