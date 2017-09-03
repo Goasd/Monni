@@ -3,6 +3,8 @@ import socket
 
 import re
 
+import time
+
 from ..player import Player
 from ..server import Server, Connect
 
@@ -55,6 +57,7 @@ class UrbanServer(Server):
         self.gameserver.hostname = html.escape(self.clean_color_code(variables['sv_hostname']))
         self.gameserver.variables = variables
         self.gameserver.map = variables['mapname']
+        self.gameserver.ping = self.server_data.ping
 
 
     def server_configs(self):
@@ -78,8 +81,11 @@ class UrbanConnect(Connect):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(SOCKET_TIMEOUT)
         sock.connect((self.host, self.port))
+        connect_start = time.time()
         sock.send(b'\xFF\xFF\xFF\xFFgetstatus')
         data = sock.recv(8192)[19:-1]
+        connect_recv = time.time()
+        self.ping = int(round((connect_recv - connect_start) * 1000))
         dataa = data
         data = str(data)
         info = data

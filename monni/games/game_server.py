@@ -15,3 +15,5 @@ class GameServer:
         self.admin_password = None
         self.server_password = None
 
+        self.ping = None
+

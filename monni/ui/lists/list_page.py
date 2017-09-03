@@ -1,11 +1,63 @@
 from gi.repository import Gtk
 
 
+class ServerChoices:
+
+    def __init__(self, win):
+        self.win = win
+
+    def setup(self):
+        self.pop = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+        self.pop.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+        self.pop.set_transient_for(self.win)
+        self.pop.set_size_request(450,200)
+        self.pop.show_all()
+        self.pop.set_modal(True)
+
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(False)
+
+        button = Gtk.Button()
+        button.set_relief(Gtk.ReliefStyle.NONE)
+        img = Gtk.Image.new_from_icon_name("window-close-symbolic", Gtk.IconSize.MENU)
+        button.set_image(img)
+        button.connect("clicked", self.quit)
+
+        header.pack_end(button)
+        self.pop.set_titlebar(header)
+
+        self.pop.set_title('Add server: Select game')
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+
+        button = Gtk.Button()
+        button.set_label('Add favorites')
+        button.connect('clicked', self.add_favorites)
+        self.box_outer.pack_start(button, True, True, 0)
+        button = Gtk.Button()
+
+        button.set_label('Play')
+        button.connect('clicked', self.start_game)
+        self.box_outer.pack_start(button, True, True, 0)
+
+        self.box_outer.show_all()
+        self.pop.add(self.box_outer)
+
+    def add_favorites(self, button):
+        pass
+
+    def start_game(self, button):
+        pass
+
+    def quit(self, button):
+        pass
+
+
 class ServerData(Gtk.ListBoxRow):
 
-    def __init__(self, server):
+    def __init__(self, server, win):
         super(Gtk.ListBoxRow, self).__init__()
         self.game_server = server
+        self.win = win
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         row.set_hexpand(False)
@@ -44,8 +96,10 @@ class ServerData(Gtk.ListBoxRow):
                           )
                           )
 
-    def select_player(self):
+    def select_server(self):
         print(self.game_server.hostname)
+        s = ServerChoices(self.win)
+        s.setup()
 
 class ListPage:
 
@@ -83,14 +137,14 @@ class ListPage:
         servers = self.data.servers
 
         for server in servers:
-            self.server_list.add(ServerData(server))
+            self.server_list.add(ServerData(server, self.win))
 
             def sort_func(row_1, row_2, data, notify_destroy):
                 return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
 
             self.server_list.set_sort_func(sort_func, None, False)
 
-        self.server_list.connect('row-activated', lambda widget, row: row.select_player())
+        self.server_list.connect('row-activated', lambda widget, row: row.select_server())
         servers_window.add(self.server_list)
 
         server_box.pack_end(servers_window, True, True, 0)

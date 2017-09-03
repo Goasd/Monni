@@ -25,10 +25,17 @@ class ListServerData(Gtk.ListBoxRow):
 
         self.a = Gtk.Label()
         self.a.set_padding(10,10)
-        self.a.set_line_wrap(True)
         self.a.set_valign(Gtk.Align.START)
         self.a.set_halign(Gtk.Align.START)
         self.a.set_justify(Gtk.Justification.LEFT)
+
+        self.c = Gtk.Label()
+        self.c.set_width_chars(5)
+        self.c.set_padding(10, 0)
+        self.c.set_line_wrap(True)
+        self.c.set_valign(Gtk.Align.CENTER)
+        self.c.set_halign(Gtk.Align.END)
+        self.c.set_justify(Gtk.Justification.CENTER)
 
         self.b = Gtk.Label()
         self.b.set_padding(10, 10)
@@ -37,9 +44,19 @@ class ListServerData(Gtk.ListBoxRow):
         self.b.set_halign(Gtk.Align.END)
         self.b.set_justify(Gtk.Justification.RIGHT)
 
-        box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        grid = Gtk.Grid()
+        grid.set_hexpand(True)
+        grid.set_vexpand(True)
+        grid.set_valign(Gtk.Align.CENTER)
+        grid.set_halign(Gtk.Align.END)
+
+        grid.attach(self.b, 0, 0, 1, 1)
+        grid.attach(self.c, 1, 0, 1, 1)
+
         box_outer.pack_start(self.a, True, True, 0)
-        box_outer.pack_end(self.b, True, True, 0)
+        box_outer.pack_end(grid, True, True, 0)
+
 
         self.add(box_outer)
 
@@ -55,6 +72,11 @@ class ListServerData(Gtk.ListBoxRow):
                               self.game_server.hostname,
                               self.game_server.host,
                               self.game_server.port
+                          )
+                          )
+        self.c.set_markup('<span size="x-large">%s</span>\n<span size="small">ms</span>' %
+                          (
+                              self.game_server.ping
                           )
                           )
         self.b.set_markup('<span size="large">Players %s/%s</span>\n<span>%s</span>' %
