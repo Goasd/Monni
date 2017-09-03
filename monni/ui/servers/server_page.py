@@ -93,7 +93,7 @@ class ServerPage:
         for player in players:
             self.players_list.add(ListPlayerData(player))
 
-        self.players_list.connect('row-activated', lambda widget, row: row.select_server())
+        self.players_list.connect('row-activated', lambda widget, row: row.select_player())
         players_window.add(self.players_list)
         r = self.setup_colum_names()
         players_notebook.pack_start(r, False, False, 0)
