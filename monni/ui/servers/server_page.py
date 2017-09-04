@@ -63,6 +63,8 @@ class ServerPage:
 
         self.setup_up_buttons()
 
+        self.setup_info(notebook)
+
         self.setup_players(notebook)
 
         self.setup_config(notebook)
@@ -74,6 +76,41 @@ class ServerPage:
         self.setup_down_buttons()
         self.win.add(self.box_outer)
         self.win.show_all()
+
+    def setup_info(self, notebook):
+        info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        info_notebook.set_border_width(10)
+
+        notebook.append_page(info_notebook, Gtk.Label('Info'))
+
+        info_window = Gtk.ScrolledWindow()
+        info_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        name = Gtk.Label()
+        name.set_markup('%s' % self.data.hostname)
+        box.add(name)
+
+        name = Gtk.Label()
+        name.set_markup('Players %s/%s' % (len(self.data.playerlist), self.data.max_players))
+        box.add(name)
+
+        name = Gtk.Label()
+        name.set_markup('Address %s:%s' % (self.data.host, self.data.port))
+        box.add(name)
+
+        name = Gtk.Label()
+        name.set_markup('Map %s' % self.data.map)
+        box.add(name)
+
+        name = Gtk.Label()
+        name.set_markup('Gametype %s' % self.data.gametype)
+        box.add(name)
+
+        info_window.add(box)
+
+        info_notebook.pack_end(info_window, True, True, 0)
 
     def setup_players(self, notebook):
 
