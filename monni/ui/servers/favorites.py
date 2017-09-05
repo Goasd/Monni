@@ -216,7 +216,7 @@ class Favorites:
     def server_deleted(self, delete_server):
         la.acquire()
         for server in self.servers:
-            if server.data == delete_server:
+            if server.game_server == delete_server:
                 self.servers.remove(server)
         la.release()
 
