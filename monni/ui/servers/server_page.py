@@ -2,6 +2,8 @@ import os
 
 from gi.repository import Gtk
 
+from monni.games.urbanterror.urbanterror import UrbanConnect
+
 
 class ListPlayerData(Gtk.ListBoxRow):
 
@@ -69,6 +71,10 @@ class ServerPage:
 
         self.setup_config(notebook)
 
+        self.setup_console(notebook)
+
+        self.setup_passwords(notebook)
+
         box_notebook.pack_start(notebook, True, True, 0)
 
         self.box_outer.pack_start(box_notebook, True, True, 0)
@@ -76,6 +82,80 @@ class ServerPage:
         self.setup_down_buttons()
         self.win.add(self.box_outer)
         self.win.show_all()
+
+    def setup_passwords(self, notebook):
+        info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        info_notebook.set_border_width(10)
+
+        notebook.append_page(info_notebook, Gtk.Label('Passwords'))
+
+        info_window = Gtk.ScrolledWindow()
+        info_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+
+        box_vertical = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+
+        admin_password_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        self.text_password = Gtk.Entry()
+        admin_save_button = Gtk.Button()
+        admin_save_button.set_label("Set")
+        admin_save_button.connect('clicked', self.save_password, self.text_password.get_text)
+
+        admin_password_box.pack_start(self.text_password, True, True, 0)
+        admin_password_box.pack_end(admin_save_button, False, True, 0)
+
+        box_vertical.pack_start(info_window, True, True, 0)
+        box_vertical.pack_end(admin_password_box, False, False, 0)
+
+        info_notebook.pack_end(box_vertical, True, True, 0)
+
+    def save_password(self, button, password):
+        self.data.admin_password = password()
+
+    def setup_console(self, notebook):
+        info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        info_notebook.set_border_width(10)
+
+        notebook.append_page(info_notebook, Gtk.Label('Console'))
+
+        info_window = Gtk.ScrolledWindow()
+        info_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+
+        box_vertical = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        self.command_history_buffer = Gtk.TextBuffer()
+        self.command_history = Gtk.TextView(buffer=self.command_history_buffer)
+
+        box_command = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        self.text_command = Gtk.Entry()
+        send_button = Gtk.Button()
+        send_button.set_label("Send")
+        send_button.connect('clicked', self.send_command, self.text_command.get_text)
+
+        box_command.pack_start(self.text_command, True, True, 0)
+        box_command.pack_end(send_button, False, True, 0)
+        info_window.add(self.command_history)
+
+        box_vertical.pack_start(info_window, True, True, 0)
+        box_vertical.pack_end(box_command, False, False, 0)
+
+        info_notebook.pack_end(box_vertical, True, True, 0)
+
+    def send_command(self, button, command):
+        text = command()
+        self.text_command.set_text('')
+
+        iter = self.command_history_buffer.get_end_iter()
+        self.command_history_buffer.insert(iter, text+"\n")
+
+        c = UrbanConnect(self.data.host, self.data.port)
+        a = c.send_command(self.data.admin_password, text)
+
+        iter = self.command_history_buffer.get_end_iter()
+        for d in a:
+            self.command_history_buffer.insert(iter, d+'\n')
 
     def setup_info(self, notebook):
         info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)

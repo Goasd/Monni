@@ -111,3 +111,15 @@ class UrbanConnect(Connect):
                 retries -= 1
         return data
 
+    def send_command(self, password, command):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(SOCKET_TIMEOUT)
+        sock.connect((self.host, self.port))
+        rcon_command = str.encode('rcon %s %s' % (password, command))
+        sock.send(b'\xFF\xFF\xFF\xFF'+rcon_command)
+        data = sock.recv(2048)
+        data = data[9:-1]
+        data = str(data,'utf-8')
+        data = data.split('\\n')
+        return data
+

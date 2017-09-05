@@ -22,4 +22,7 @@ class Connect:
     def update_status(self):
         return NotImplementedError
 
+    def send_command(self, password, command):
+        return NotImplementedError
+
 
