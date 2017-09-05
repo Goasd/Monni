@@ -1,5 +1,7 @@
 import os
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from monni.games.urbanterror.urbanterror import UrbanConnect
@@ -45,6 +47,7 @@ class ListPlayerData(Gtk.ListBoxRow):
     def select_player(self):
         print(self.player.name)
 
+
 class ServerPage:
 
     def __init__(self, win, load, home):
@@ -53,11 +56,13 @@ class ServerPage:
         self.home = home
         self.data = None
 
-    def setup(self, data):
+    def setup(self, data, back):
         self.data = data
+        self.backa = back
+        print(self.backa)
 
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-
+        print(data)
         self.win.set_title("%s - Monni" % self.data.hostname)
 
         notebook = Gtk.Notebook()
@@ -353,7 +358,7 @@ class ServerPage:
 
     def back(self, button):
         self.win.remove(self.box_outer)
-        self.home.show_home()
+        self.backa.show()
 
     def reload_data(self, button):
         self.load.update_server_data(self.data)

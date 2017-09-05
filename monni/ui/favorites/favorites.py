@@ -3,97 +3,24 @@ import time
 
 import gi
 
+from monni.ui.server.list_row import ListServerData
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from ..new_server import NewServer
-from .server_page import ServerPage
 
 
 la = threading.Lock()
 
 
-class ListServerData(Gtk.ListBoxRow):
-
-    def __init__(self, game_server, win, load, home, page):
-        super(Gtk.ListBoxRow, self).__init__()
-        self.game_server = game_server
-        self.win = win
-        self.load = load
-        self.home = home
-        self.page = page
-
-        self.a = Gtk.Label()
-        self.a.set_padding(10,10)
-        self.a.set_valign(Gtk.Align.START)
-        self.a.set_halign(Gtk.Align.START)
-        self.a.set_justify(Gtk.Justification.LEFT)
-
-        self.c = Gtk.Label()
-        self.c.set_width_chars(5)
-        self.c.set_padding(10, 0)
-        self.c.set_line_wrap(True)
-        self.c.set_valign(Gtk.Align.CENTER)
-        self.c.set_halign(Gtk.Align.END)
-        self.c.set_justify(Gtk.Justification.CENTER)
-
-        self.b = Gtk.Label()
-        self.b.set_padding(10, 10)
-        self.b.set_line_wrap(True)
-        self.b.set_valign(Gtk.Align.START)
-        self.b.set_halign(Gtk.Align.END)
-        self.b.set_justify(Gtk.Justification.RIGHT)
-
-        box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        grid = Gtk.Grid()
-        grid.set_hexpand(True)
-        grid.set_vexpand(True)
-        grid.set_valign(Gtk.Align.CENTER)
-        grid.set_halign(Gtk.Align.END)
-
-        grid.attach(self.b, 0, 0, 1, 1)
-        grid.attach(self.c, 1, 0, 1, 1)
-
-        box_outer.pack_start(self.a, True, True, 0)
-        box_outer.pack_end(grid, True, True, 0)
-
-
-        self.add(box_outer)
-
-        self.update()
-
-    def select_server(self):
-        self.win.remove(self.home.stack_box)
-        self.page.setup(self.game_server)
-
-    def update(self):
-        self.a.set_markup('<span size="x-large">%.30s</span>\n<span>%s:%s</span>' %
-                          (
-                              self.game_server.hostname,
-                              self.game_server.host,
-                              self.game_server.port
-                          )
-                          )
-        self.c.set_markup('<span size="x-large">%s</span>\n<span size="small">ms</span>' %
-                          (
-                              self.game_server.ping
-                          )
-                          )
-        self.b.set_markup('<span size="large">Players %s/%s</span>\n<span>%s</span>' %
-                          (
-                              self.game_server.players,
-                              self.game_server.max_players,
-                              self.game_server.map
-                          )
-                          )
-
-
 class Favorites:
 
-    def __init__(self, win, home, load):
+    def __init__(self, win, home, load, page):
         self.win = win
         self.home = home
         self.load = load
+        self.page = page
 
         self.last_servers_update = time.time()
 
@@ -101,14 +28,13 @@ class Favorites:
         self.load.call_when_server_deleted = self.server_deleted
         self.load.call_when_server_updated = self.server_updated
 
-        self.page = ServerPage(self.win, self.load, self.home)
-
         self.servers = Gtk.ListBox()
         self.servers.set_hexpand(True)
         self.servers.set_vexpand(True)
         self.servers.set_border_width(30)
 
     def setup(self, stack):
+        self.stack = stack
 
         favorites_grid = Gtk.Grid()
         favorites_grid.set_hexpand(True)
@@ -205,7 +131,7 @@ class Favorites:
 
     def server_created(self, server):
         la.acquire()
-        self.servers.add(ListServerData(server, self.win, self.load, self.home, self.page))
+        self.servers.add(ListServerData(server, self.win, self.load, self.page, self.home.stack_box, self.home))
 
         def sort_func(row_1, row_2, data, notify_destroy):
             return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)

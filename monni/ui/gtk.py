@@ -1,7 +1,8 @@
 import gi
 
+from monni.ui.server.page import ServerPage
 from .lists.server_lists import ServerLists
-from .servers.favorites import Favorites
+from .favorites.favorites import Favorites
 from .settings import Settings
 from ..games.loading import Load
 
@@ -16,7 +17,9 @@ class Home:
 
         self.stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-    def show_home(self):
+        self.page = ServerPage(self.win, self.load, self)
+
+    def show(self):
         self.win.add(self.stack_box)
         self.set_title()
 
@@ -27,10 +30,10 @@ class Home:
         stack = Gtk.Stack()
         stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 
-        favorites = Favorites(self.win, self, self.load)
+        favorites = Favorites(self.win, self, self.load, self.page)
         favorites.setup(stack)
 
-        server_lists = ServerLists(self.win, self, self.load)
+        server_lists = ServerLists(self.win, self, self.load, self.page)
         server_lists.setup(stack)
 
         stack_switcher = Gtk.StackSwitcher()
@@ -84,7 +87,7 @@ class Window(Gtk.ApplicationWindow):
         Gtk.Window.__init__(self, application=app)
 
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_size_request(500, 500)
+        self.set_size_request(650, 500)
         self.home = Home(self)
         self.home.setup()
 

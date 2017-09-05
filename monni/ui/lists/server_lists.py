@@ -2,23 +2,23 @@ import threading
 import time
 
 import gi
-
-from monni.ui.lists.list_page import ListPage
-
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from .list_page import ListPage
 
 la = threading.Lock()
 
+
 class ListData(Gtk.ListBoxRow):
 
-    def __init__(self, game_server, win, load, home, page):
+    def __init__(self, game_server, win, load, home, list_page, page):
         super(Gtk.ListBoxRow, self).__init__()
         self.server_list = game_server
         self.win = win
         self.load = load
         self.home = home
+        self.list_page = list_page
         self.page = page
 
         self.a = Gtk.Label()
@@ -45,7 +45,7 @@ class ListData(Gtk.ListBoxRow):
 
     def select_server(self):
         self.win.remove(self.home.stack_box)
-        self.page.setup(self.server_list)
+        self.list_page.setup(self.server_list)
 
     def update(self):
         self.a.set_markup('<span size="x-large">%s:%s</span>\n<span>%s</span>' %
@@ -64,11 +64,12 @@ class ListData(Gtk.ListBoxRow):
 
 class ServerLists:
 
-    def __init__(self, win, home, load):
+    def __init__(self, win, home, load, page):
         self.win = win
         self.home = home
         self.load = load
-        self.page = ListPage(self.win, self.load, self.home)
+        self.page = page
+        self.list_page = ListPage(self.win, self.load, self.home, self.page)
 
         self.last_servers_update = time.time()
 
@@ -108,7 +109,7 @@ class ServerLists:
         b = self.load.lists()
         for a in b:
             la.acquire()
-            self.servers.add(ListData(a, self.win, self.load, self.home, self.page))
+            self.servers.add(ListData(a, self.win, self.load, self.home, self.list_page, self.page))
             self.servers.show_all()
             la.release()
             for s in a.servers:
