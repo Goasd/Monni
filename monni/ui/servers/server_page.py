@@ -97,6 +97,9 @@ class ServerPage:
 
         admin_password_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
+        label_admin_password = Gtk.Label()
+        label_admin_password.set_text('Admin password')
+
         self.text_password = Gtk.Entry()
         admin_save_button = Gtk.Button()
         admin_save_button.set_label("Set")
@@ -105,13 +108,32 @@ class ServerPage:
         admin_password_box.pack_start(self.text_password, True, True, 0)
         admin_password_box.pack_end(admin_save_button, False, True, 0)
 
-        box_vertical.pack_start(info_window, True, True, 0)
-        box_vertical.pack_end(admin_password_box, False, False, 0)
+        box_vertical.pack_start(label_admin_password, False, False, 0)
+        box_vertical.pack_start(admin_password_box, False, False, 0)
+
+        admin_password_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        label_server_password = Gtk.Label()
+        label_server_password.set_text('Server password')
+
+        self.text_server_password = Gtk.Entry()
+        admin_save_button = Gtk.Button()
+        admin_save_button.set_label("Set")
+        admin_save_button.connect('clicked', self.save_server_password, self.text_server_password.get_text)
+
+        admin_password_box.pack_start(self.text_server_password, True, True, 0)
+        admin_password_box.pack_end(admin_save_button, False, True, 0)
+
+        box_vertical.pack_start(label_server_password, False, False, 0)
+        box_vertical.pack_start(admin_password_box, False, False, 0)
 
         info_notebook.pack_end(box_vertical, True, True, 0)
 
     def save_password(self, button, password):
         self.data.admin_password = password()
+
+    def save_server_password(self, button, password):
+        self.data.server_password = password()
 
     def setup_console(self, notebook):
         info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -344,4 +366,7 @@ class ServerPage:
 
     def play_button(self, button):
         location = self.load.settings_get_game_location(self.data.game)
-        os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
+        if self.data.server_password == None:
+            os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
+        else:
+            os.system('%s +connect %s:%s +password %s &' % (location, self.data.host, self.data.port, self.data.server_password))
