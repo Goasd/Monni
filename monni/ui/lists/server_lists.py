@@ -6,6 +6,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
 from .list_page import ListPage
+from .new_list import NewList
 
 la = threading.Lock()
 
@@ -127,7 +128,7 @@ class ServerLists:
         new_list_button = Gtk.Button()
         new_list_button.set_relief(Gtk.ReliefStyle.NONE)
         new_list_button.set_label('New list')
-        #new_list_button.connect("clicked", )
+        new_list_button.connect("clicked", self.add_list)
         lists_down.pack_start(new_list_button, True, True, 0)
 
         update_lists_button = Gtk.Button()
@@ -138,4 +139,6 @@ class ServerLists:
 
         return lists_down
 
+    def add_list(self, button):
+        NewList(self.win, self.load)
 

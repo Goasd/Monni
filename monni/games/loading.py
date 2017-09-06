@@ -140,4 +140,19 @@ class Load:
 
         GLib.idle_add(self.call_when_server_deleted, server)
 
+    def add_list(self, hostname, port, game):
+        pass
+
+    def add_new_list(self, hostname, port, game):
+
+        server_list_file = open(self.masters, 'r')
+        server_list = eval(server_list_file.read())
+        server_list.append([hostname, port, game])
+
+        server_list_file = open(self.masters, 'w')
+        server_list_file.write(repr(server_list))
+        server_list_file.close()
+
+        self.add_list(hostname, port, game)
+
 
