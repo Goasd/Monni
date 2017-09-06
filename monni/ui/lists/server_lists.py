@@ -2,6 +2,9 @@ import threading
 import time
 
 import gi
+
+from monni.games.loading import Load
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
@@ -65,12 +68,12 @@ class ListData(Gtk.ListBoxRow):
 
 class ServerLists:
 
-    def __init__(self, win, home, load, page):
+    def __init__(self, win, home, page):
         self.win = win
         self.home = home
-        self.load = load
+        self.load = Load()
         self.page = page
-        self.list_page = ListPage(self.win, self.load, self.home, self.page)
+        self.list_page = ListPage(self.win, self.home, self.page)
 
         self.last_servers_update = time.time()
 
@@ -114,10 +117,6 @@ class ServerLists:
     def add_server_in_list(self, a):
         self.servers.add(ListData(a, self.win, self.load, self.home, self.list_page, self.page))
         self.servers.show_all()
-        for s in a.servers:
-            thread = threading.Thread(target=self.load.update_server_data, args=(s,))
-            thread.daemon = True
-            thread.start()
 
     def servers(self):
         self.load.servers_in_list()

@@ -55,7 +55,7 @@ class ListServerData(Gtk.ListBoxRow):
 
     def select_server(self):
         self.win.remove(self.previous)
-        self.page.setup(self.game_server, self.back)
+        self.page.setup(self.game_server, self.back, self.load)
 
     def update(self):
         self.a.set_markup('<span size="x-large">%.30s</span>\n<span>%s:%s</span>' %

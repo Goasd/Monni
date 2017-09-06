@@ -78,6 +78,13 @@ class Load:
 
         GLib.idle_add(self.call_when_server_updated, server)
 
+    def servers_add(self, server_list):
+
+        for server in server_list:
+            thread = threading.Thread(target=self.add_server, args=(server.host, server.port, server.game,))
+            thread.daemon = True
+            thread.start()
+
     def servers(self):
 
         default_servers = [
@@ -95,12 +102,10 @@ class Load:
             server_list = eval(server_list_file.read())
         server_list_file.close()
 
-        threads = []
         for server in server_list:
             thread = threading.Thread(target=self.add_server, args=(server[0], server[1], server[2],))
             thread.daemon = True
             thread.start()
-            threads.append(thread)
 
     def add_server(self, hostname, port, game):
 

@@ -50,19 +50,18 @@ class ListPlayerData(Gtk.ListBoxRow):
 
 class ServerPage:
 
-    def __init__(self, win, load, home):
+    def __init__(self, win, home):
         self.win = win
-        self.load = load
+        self.load = None
         self.home = home
         self.data = None
 
-    def setup(self, data, back):
+    def setup(self, data, back, load):
         self.data = data
         self.backa = back
-        print(self.backa)
+        self.load = load
 
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        print(data)
         self.win.set_title("%s - Monni" % self.data.hostname)
 
         notebook = Gtk.Notebook()
@@ -363,7 +362,7 @@ class ServerPage:
     def reload_data(self, button):
         self.load.update_server_data(self.data)
         self.win.remove(self.box_outer)
-        self.setup(self.data, self.backa)
+        self.setup(self.data, self.backa, self.load)
 
     def delete_server(self, button):
         self.load.delete_server(self.data)

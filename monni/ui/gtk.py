@@ -12,12 +12,11 @@ from gi.repository import Gtk, Gio
 class Home:
     def __init__(self, win):
 
-        self.load = Load()
         self.win = win
 
         self.stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-        self.page = ServerPage(self.win, self.load, self)
+        self.page = ServerPage(self.win, self)
 
     def show(self):
         self.win.add(self.stack_box)
@@ -30,10 +29,10 @@ class Home:
         stack = Gtk.Stack()
         stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 
-        favorites = Favorites(self.win, self, self.load, self.page)
+        favorites = Favorites(self.win, self, self.page)
         favorites.setup(stack)
 
-        server_lists = ServerLists(self.win, self, self.load, self.page)
+        server_lists = ServerLists(self.win, self, self.page)
         server_lists.setup(stack)
 
         stack_switcher = Gtk.StackSwitcher()
