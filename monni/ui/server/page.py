@@ -363,7 +363,7 @@ class ServerPage:
     def reload_data(self, button):
         self.load.update_server_data(self.data)
         self.win.remove(self.box_outer)
-        self.setup(self.data)
+        self.setup(self.data, self.backa)
 
     def delete_server(self, button):
         self.load.delete_server(self.data)
