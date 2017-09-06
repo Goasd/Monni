@@ -10,6 +10,21 @@ from ..server import Server, Connect
 
 SOCKET_TIMEOUT = 3
 
+GAME_TYPES = {
+    '0': 'FFA',
+    '1': 'LMS',
+    '2': 'FFA',
+    '3': 'TDM',
+    '4': 'TS',
+    '5': 'FTL',
+    '6': 'CNH',
+    '7': 'CTF',
+    '8': 'BM',
+    '9': 'JUMP',
+    '10': 'FT',
+    '11': 'GUN',
+}
+
 
 class UrbanServer(Server):
 
@@ -57,6 +72,7 @@ class UrbanServer(Server):
         self.gameserver.hostname = html.escape(self.clean_color_code(variables['sv_hostname']))
         self.gameserver.variables = variables
         self.gameserver.map = variables['mapname']
+        self.gameserver.gametype = GAME_TYPES[variables['g_gametype']]
         self.gameserver.ping = self.server_data.ping
 
 
