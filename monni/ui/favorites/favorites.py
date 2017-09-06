@@ -59,7 +59,10 @@ class Favorites:
         favorites_grid.attach(favorites_down, 0, 4, 1, 1)
 
         stack.add_titled(favorites_grid, "grid", "Favorites")
-        self.load.servers()
+
+        thread = threading.Thread(target=self.load.servers())
+        thread.daemon = True
+        thread.start()
 
     def _favorites_down(self):
         favorites_down = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -82,15 +85,14 @@ class Favorites:
         NewServer(self.win, self.load)
 
     def _update_servers(self, button):
-        if time.time() - self.last_servers_update < 4:
-            return
+        if time.time() - self.last_servers_update > 2:
 
-        for server in self.servers.get_children():
-            thread = threading.Thread(target=self._update_server, args=(server,))
-            thread.daemon = True
-            thread.start()
+            for server in self.servers.get_children():
+                thread = threading.Thread(target=self._update_server, args=(server,))
+                thread.daemon = True
+                thread.start()
 
-        self.last_servers_update = time.time()
+            self.last_servers_update = time.time()
 
     def _search(self):
         searchbar = Gtk.SearchBar()
@@ -130,24 +132,20 @@ class Favorites:
         server.load.update_server_data(server.game_server)
 
     def server_created(self, server):
-        la.acquire()
         self.servers.add(ListServerData(server, self.win, self.load, self.page, self.home.stack_box, self.home))
 
         def sort_func(row_1, row_2, data, notify_destroy):
             return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
 
         self.servers.set_sort_func(sort_func, None, False)
-        la.release()
+        self.servers.show_all()
 
     def server_deleted(self, delete_server):
-        la.acquire()
         for server in self.servers:
             if server.game_server == delete_server:
                 self.servers.remove(server)
-        la.release()
 
     def server_updated(self, update_server):
-        la.acquire()
 
         for server in self.servers:
             if server.game_server == update_server:
@@ -157,4 +155,3 @@ class Favorites:
             return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
 
         self.servers.set_sort_func(sort_func, None, False)
-        la.release()

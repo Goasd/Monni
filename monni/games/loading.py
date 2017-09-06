@@ -1,6 +1,8 @@
 import threading
 import configparser
 
+from gi.repository import GLib
+
 from .serverslist import ServersList
 from .urbanterror.master import Master
 from .game_server import GameServer
@@ -74,7 +76,7 @@ class Load:
         else:
             return ValueError
 
-        self.call_when_server_updated(server)
+        GLib.idle_add(self.call_when_server_updated, server)
 
     def servers(self):
 
@@ -100,9 +102,6 @@ class Load:
             thread.start()
             threads.append(thread)
 
-        for thread in threads:
-            thread.join()
-
     def add_server(self, hostname, port, game):
 
         gameserver = GameServer()
@@ -115,7 +114,7 @@ class Load:
         else:
             return ValueError
 
-        self.call_when_server_created(gameserver)
+        GLib.idle_add(self.call_when_server_created, gameserver)
 
     def add_new_server(self, hostname, port, game):
 
@@ -139,5 +138,6 @@ class Load:
         server_list_file.write(repr(server_list))
         server_list_file.close()
 
-        self.call_when_server_deleted(server)
+        GLib.idle_add(self.call_when_server_deleted, server)
+
 

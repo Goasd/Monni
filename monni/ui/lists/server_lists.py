@@ -3,7 +3,7 @@ import time
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from .list_page import ListPage
 
@@ -108,14 +108,15 @@ class ServerLists:
     def lists(self):
         b = self.load.lists()
         for a in b:
-            la.acquire()
-            self.servers.add(ListData(a, self.win, self.load, self.home, self.list_page, self.page))
-            self.servers.show_all()
-            la.release()
-            for s in a.servers:
-                thread = threading.Thread(target=self.load.update_server_data, args=(s,))
-                thread.daemon = True
-                thread.start()
+            GLib.idle_add(self.add_server_in_list, a)
+
+    def add_server_in_list(self, a):
+        self.servers.add(ListData(a, self.win, self.load, self.home, self.list_page, self.page))
+        self.servers.show_all()
+        for s in a.servers:
+            thread = threading.Thread(target=self.load.update_server_data, args=(s,))
+            thread.daemon = True
+            thread.start()
 
     def servers(self):
         self.load.servers_in_list()
