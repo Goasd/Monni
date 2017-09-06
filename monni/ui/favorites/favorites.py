@@ -8,7 +8,7 @@ from monni.ui.server.list_row import ListServerData
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from ..new_server import NewServer
+from monni.ui.favorites.new_server import NewServer
 
 
 la = threading.Lock()
