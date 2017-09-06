@@ -40,6 +40,10 @@ class UrbanServer(Server):
         except:
             return
         data = self.server_data.data
+
+        if data is None:
+            return
+
         data = data.decode("latin-1").split("\n")
 
         variables = ''
@@ -75,7 +79,6 @@ class UrbanServer(Server):
         self.gameserver.gametype = GAME_TYPES[variables['g_gametype']]
         self.gameserver.ping = self.server_data.ping
 
-
     def server_configs(self):
         return self.variables
 
@@ -94,14 +97,7 @@ class UrbanServer(Server):
 class UrbanConnect(Connect):
 
     def update_status(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(SOCKET_TIMEOUT)
-        sock.connect((self.host, self.port))
-        connect_start = time.time()
-        sock.send(b'\xFF\xFF\xFF\xFFgetstatus')
-        data = sock.recv(8192)[19:-1]
-        connect_recv = time.time()
-        self.ping = int(round((connect_recv - connect_start) * 1000))
+        data = self.send_and_recv('getstatus')
         dataa = data
         data = str(data)
         info = data
@@ -114,28 +110,37 @@ class UrbanConnect(Connect):
         self.data = dataa
 
     def update_info(self):
-        retries = 2
-        while retries > 0:
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.settimeout(SOCKET_TIMEOUT)
-                sock.connect((self.host, self.port))
-                sock.send(b'\xFF\xFF\xFF\xFFgetinfo')
-                data = str(sock.recv(2048))
-                retries = 0
-            except:
-                retries -= 1
+
+        data = self.send_and_recv('getinfo')
+        data = str(data)
+
         return data
 
     def send_command(self, password, command):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(SOCKET_TIMEOUT)
-        sock.connect((self.host, self.port))
-        rcon_command = str.encode('rcon %s %s' % (password, command))
-        sock.send(b'\xFF\xFF\xFF\xFF'+rcon_command)
-        data = sock.recv(2048)
+        rcon_command = 'rcon %s %s' % (password, command)
+        data = self.send_and_recv(rcon_command)
         data = data[9:-1]
         data = str(data,'utf-8')
         data = data.split('\\n')
         return data
 
+    def send_and_recv(self, command):
+        command = str.encode(command)
+        retries = 2
+        self.ping = '∞'
+
+        while retries > 0:
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.settimeout(SOCKET_TIMEOUT)
+                sock.connect((self.host, self.port))
+                connect_start = time.time()
+                sock.send(b'\xFF\xFF\xFF\xFF'+command)
+                data = sock.recv(8192)
+                connect_recv = time.time()
+                self.ping = int(round((connect_recv - connect_start) * 1000))
+                return data
+            except:
+                retries -= 1
+
+        return None
