@@ -324,6 +324,9 @@ class ServerPage:
         play_button.set_label('Play')
         play_button.connect('clicked', self.play_button)
 
+        if not self.settings.get_game_location(self.data.game):
+            play_button.set_sensitive(False)
+
         button_box.pack_start(play_button, True, True, 0)
 
         self.box_outer.pack_end(button_box, False, False, 0)
