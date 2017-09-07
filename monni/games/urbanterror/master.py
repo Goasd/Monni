@@ -11,8 +11,13 @@ class Master:
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(3)
-        sock.connect((server, port))
-        sock.send(b'\xFF\xFF\xFF\xFFgetservers 68 empty full')
+
+        try:
+            sock.connect((server, port))
+            sock.send(b'\xFF\xFF\xFF\xFFgetservers 68 empty full')
+        except:
+            return []
+
         l = []
         while True:
             try:
