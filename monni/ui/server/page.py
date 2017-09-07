@@ -1,9 +1,9 @@
 import os
-
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from monni.games import loading
 from monni.games.urbanterror.urbanterror import UrbanConnect
 
 
@@ -55,6 +55,7 @@ class ServerPage:
         self.load = None
         self.home = home
         self.data = None
+        self.settings = loading.Settings()
 
     def setup(self, data, back, load):
         self.data = data
@@ -369,8 +370,8 @@ class ServerPage:
         self.back(None)
 
     def play_button(self, button):
-        location = self.load.settings_get_game_location(self.data.game)
-        if self.data.server_password == None:
+        location = self.settings.get_game_location(self.data.game)
+        if self.data.server_password is None:
             os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
         else:
             os.system('%s +connect %s:%s +password %s &' % (location, self.data.host, self.data.port, self.data.server_password))

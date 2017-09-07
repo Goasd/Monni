@@ -1,10 +1,12 @@
 from gi.repository import Gtk
 
+from monni.games import loading
+
 
 class Settings:
 
-    def __init__(self, win, load):
-        self.load = load
+    def __init__(self, win):
+        self.settings = loading.Settings()
         self.win = win
 
         self.pop = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -60,7 +62,7 @@ class Settings:
 
 
         folder = Gtk.Entry()
-        folder.set_text(self.load.settings_get_game_location(game))
+        folder.set_text(self.settings.get_game_location(game))
         setting_box.add(folder)
         button1 = Gtk.Button("...")
         button1.connect("clicked", self.on_file_clicked, game)
@@ -80,7 +82,7 @@ class Settings:
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
-            self.load.settings_set_game_location(game, dialog.get_filename())
+            self.settings.set_game_location(game, dialog.get_filename())
 
         dialog.destroy()
 

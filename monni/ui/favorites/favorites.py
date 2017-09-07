@@ -1,6 +1,7 @@
 import gi
 
-from monni.games.loading import Load
+from monni.games import loading
+from monni.games.loading import Lists
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -14,15 +15,15 @@ class Favorites:
     def __init__(self, win, home, page):
         self.win = win
         self.home = home
-        self.load = Load()
+        self.load_servers = loading.Servers()
         self.page = page
 
     def setup(self, stack):
-        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.home.stack_box, self.home)
+        self.servers_ui = Servers(self.win, self.home, self.load_servers, self.page, self.home.stack_box, self.home)
         favorites_grid = Gtk.Grid()
         favorites_grid.set_hexpand(True)
         favorites_grid.set_vexpand(True)
-        self.servers_ui.setup(favorites_grid, self.load.servers)
+        self.servers_ui.setup(favorites_grid, self.load_servers.servers)
 
         favorites_down = self._favorites_down()
         favorites_grid.attach(favorites_down, 0, 4, 1, 1)

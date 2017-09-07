@@ -3,7 +3,7 @@ import time
 
 import gi
 
-from monni.games.loading import Load
+from monni.games.loading import Lists
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
@@ -16,11 +16,10 @@ la = threading.Lock()
 
 class ListData(Gtk.ListBoxRow):
 
-    def __init__(self, game_server, win, load, home, list_page, page):
+    def __init__(self, game_server, win, home, list_page, page):
         super(Gtk.ListBoxRow, self).__init__()
         self.server_list = game_server
         self.win = win
-        self.load = load
         self.home = home
         self.list_page = list_page
         self.page = page
@@ -71,7 +70,12 @@ class ServerLists:
     def __init__(self, win, home, page):
         self.win = win
         self.home = home
-        self.load = Load()
+
+        self.load = Lists()
+        self.load.call_when_server_created = self.list_created
+        self.load.call_when_server_deleted = self.list_deleted
+        self.load.call_when_server_updated = self.list_updated
+
         self.page = page
         self.list_page = ListPage(self.win, self.home, self.page)
 
@@ -110,16 +114,11 @@ class ServerLists:
         thread.start()
 
     def lists(self):
-        b = self.load.lists()
-        for a in b:
-            GLib.idle_add(self.add_server_in_list, a)
+        self.load.lists()
 
     def add_server_in_list(self, a):
-        self.servers.add(ListData(a, self.win, self.load, self.home, self.list_page, self.page))
+        self.servers.add(ListData(a, self.win, self.home, self.list_page, self.page))
         self.servers.show_all()
-
-    def servers(self):
-        self.load.servers_in_list()
 
     def _lists_down(self):
         lists_down = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -133,7 +132,7 @@ class ServerLists:
         update_lists_button = Gtk.Button()
         update_lists_button.set_relief(Gtk.ReliefStyle.NONE)
         update_lists_button.set_label('Update lists')
-        #update_lists_button.connect("clicked", )
+        update_lists_button.connect("clicked", self.update_servers)
         lists_down.pack_end(update_lists_button, True, True, 0)
 
         return lists_down
@@ -141,3 +140,34 @@ class ServerLists:
     def add_list(self, button):
         NewList(self.win, self.load)
 
+    def update_servers(self, button):
+        for server in self.servers.get_children():
+            thread = threading.Thread(target=self.load.update_server_data, args=(server.server_list,))
+            thread.daemon = True
+            thread.start()
+
+    def update_server(self, server_list):
+
+        for server in self.servers:
+            if server.server_list == server_list:
+                server.server_list = server_list
+                server.update()
+
+    def list_created(self, server):
+
+        self.servers.add(ListData(server, self.win, self.home, self.list_page, self.page))
+        self.servers.show_all()
+
+    def list_deleted(self, server):
+        for server in self.servers:
+            if server.server_list == server:
+                self.servers.remove(server)
+
+    def list_updated(self, update_server):
+        print('asdlasdjkdas')
+        print(update_server)
+
+        for server in self.servers:
+            if server.server_list == update_server:
+                server.server_list = update_server
+                server.update()

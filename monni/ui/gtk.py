@@ -4,7 +4,7 @@ from monni.ui.server.page import ServerPage
 from .lists.server_lists import ServerLists
 from .favorites.favorites import Favorites
 from .settings import Settings
-from ..games.loading import Load
+from ..games.loading import Lists
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
@@ -74,7 +74,7 @@ class Home:
         self.win.set_title("Monni")
 
     def settings(self, button):
-        Settings(self.win, self.load)
+        Settings(self.win)
 
     def quit(self, button):
         self.win.destroy()

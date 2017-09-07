@@ -1,17 +1,19 @@
 import gi
 
-from monni.games.loading import Load
-from monni.ui.servers import Servers
+from monni.games import loading
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+
+from monni.games.loading import Lists
+from monni.ui.servers import Servers
 
 
 class ListPage:
 
     def __init__(self, win, home, page):
         self.win = win
-        self.load = Load()
+        self.load_servers = loading.Servers()
         self.home = home
         self.data = None
         self.page = page
@@ -21,7 +23,7 @@ class ListPage:
 
     def setup(self, data):
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
+        self.servers_ui = Servers(self.win, self.home, self.load_servers, self.page, self.box_outer, self)
         self.data = data
 
         self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
@@ -30,13 +32,11 @@ class ListPage:
 
         self.setup_up_buttons()
 
-
         servers_grid = Gtk.Grid()
         servers_grid.set_hexpand(True)
         servers_grid.set_vexpand(True)
         self.servers_ui.setup(servers_grid, self.server_data)
         servers_box.add(servers_grid)
-
 
         self.box_outer.pack_start(servers_box, True, True, 0)
 
@@ -44,7 +44,7 @@ class ListPage:
         self.win.show_all()
 
     def server_data(self):
-        return self.load.servers_add(self.data.servers)
+        return self.load_servers.servers_add(self.data.servers)
 
     def setup_up_buttons(self):
         button_box = Gtk.Box(spacing=6)

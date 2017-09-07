@@ -8,66 +8,35 @@ from .urbanterror.master import Master
 from .game_server import GameServer
 from .urbanterror.urbanterror import UrbanServer
 
-l = threading.Lock()
-servers = []
+class Settings:
 
+    def __init__(self):
+        self.file = 'config.ini'
 
-class Load:
+    def settings(self):
+        config = configparser.ConfigParser()
+        config.read(self.file)
+        print(config)
+
+    def set_game_location(self, game, location):
+        config = configparser.ConfigParser()
+        config[str(game)] = {}
+        config[str(game)]['location'] = location
+        with open(self.file, 'w') as configfile:
+            config.write(configfile)
+
+    def get_game_location(self, game):
+        config = configparser.ConfigParser()
+        config.read(self.file)
+        return config[game]['location']
+
+class Servers:
 
     def __init__(self):
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
         self.file = 'servers'
-        self.masters = 'masters'
-
-    def settings(self):
-        config = configparser.ConfigParser()
-        config.read("config.ini")
-        print(config)
-
-    def settings_set_game_location(self, game, location):
-        config = configparser.ConfigParser()
-        config[str(game)] = {}
-        config[str(game)]['location'] = location
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
-
-    def settings_get_game_location(self, game):
-        config = configparser.ConfigParser()
-        config.read("config.ini")
-        return config[game]['location']
-
-    def lists(self):
-        default_servers = [
-            ['master.urbanterror.info', 27900, 'Urban Terror']
-        ]
-
-        try:
-            server_list_file = open(self.masters, 'r')
-            server_list = eval(server_list_file.read())
-        except FileNotFoundError:
-            server_list_file = open(self.masters, 'w')
-            server_list_file.write(repr(default_servers))
-            server_list_file.close()
-            server_list_file = open(self.masters, 'r')
-            server_list = eval(server_list_file.read())
-        server_list_file.close()
-
-        return self.servers_in_list(server_list)
-
-    def servers_in_list(self, master_servers):
-
-        s = Master()
-        l = []
-        for server in master_servers:
-            a = ServersList()
-            a.host = server[0]
-            a.port = server[1]
-            a.game = server[2]
-            a.servers = s.get_servers(server[0], server[1], server[2])
-            l.append(a)
-        return l
 
     def update_server_data(self, server):
 
@@ -161,3 +130,47 @@ class Load:
         self.add_list(hostname, port, game)
 
 
+class Lists:
+
+    def __init__(self):
+        self.call_when_server_created = lambda: None
+        self.call_when_server_deleted = lambda: None
+        self.call_when_server_updated = lambda: None
+        self.masters = 'masters'
+
+    def lists(self):
+        default_servers = [
+            ['master.urbanterror.info', 27900, 'Urban Terror']
+        ]
+
+        try:
+            server_list_file = open(self.masters, 'r')
+            server_list = eval(server_list_file.read())
+        except FileNotFoundError:
+            server_list_file = open(self.masters, 'w')
+            server_list_file.write(repr(default_servers))
+            server_list_file.close()
+            server_list_file = open(self.masters, 'r')
+            server_list = eval(server_list_file.read())
+        server_list_file.close()
+
+        for server in server_list:
+            thread = threading.Thread(target=self.add_server, args=(server[0], server[1], server[2],))
+            thread.daemon = True
+            thread.start()
+
+    def add_server(self, hostname, port, game):
+
+        s = Master()
+        a = ServersList()
+        a.host = hostname
+        a.port = port
+        a.game = game
+        a.servers = s.get_servers(hostname, port, game)
+
+        GLib.idle_add(self.call_when_server_created, a)
+
+    def update_server_data(self, server):
+        s = Master()
+        server.servers = s.get_servers(server.host, server.port, server.game)
+        GLib.idle_add(self.call_when_server_updated, server)
