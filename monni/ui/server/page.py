@@ -99,7 +99,6 @@ class ServerPage:
 
         box_vertical = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-
         admin_password_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
         label_admin_password = Gtk.Label()
@@ -194,25 +193,37 @@ class ServerPage:
         info_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.set_valign(Gtk.Align.START)
+        box.set_halign(Gtk.Align.START)
 
         name = Gtk.Label()
-        name.set_markup('%s' % self.data.hostname)
+        name.set_markup('<span size="xx-large">%s</span>' % self.data.hostname)
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
         box.add(name)
 
         name = Gtk.Label()
-        name.set_markup('Players %s/%s' % (len(self.data.playerlist), self.data.max_players))
+        name.set_markup('<span size="x-large">%s:%s</span>\n' % (self.data.host, self.data.port))
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
         box.add(name)
 
         name = Gtk.Label()
-        name.set_markup('Address %s:%s' % (self.data.host, self.data.port))
+        name.set_markup('<span size="x-large">Players:\t\t %s/%s</span>' % (len(self.data.playerlist), self.data.max_players))
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
         box.add(name)
 
         name = Gtk.Label()
-        name.set_markup('Map %s' % self.data.map)
+        name.set_markup('<span size="x-large">Map:\t\t %s</span>' % self.data.map)
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
         box.add(name)
 
         name = Gtk.Label()
-        name.set_markup('Gametype %s' % self.data.gametype)
+        name.set_markup('<span size="x-large">Gametype:\t %s</span>' % self.data.gametype)
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
         box.add(name)
 
         info_window.add(box)
