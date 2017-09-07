@@ -129,6 +129,16 @@ class Servers:
 
         self.add_list(hostname, port, game)
 
+    def is_favorite_server(self, check_server):
+        server_list_file = open(self.file, 'r')
+        server_list = eval(server_list_file.read())
+
+        for server in server_list:
+            if server[0] == check_server.host and server[1] == check_server.port and server[2] == check_server.game:
+                return True
+
+        return False
+
 
 class Lists:
 

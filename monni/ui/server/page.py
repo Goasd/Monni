@@ -310,11 +310,15 @@ class ServerPage:
     def setup_down_buttons(self):
         button_box = Gtk.Box(spacing=6)
 
-        delete_button = Gtk.Button()
-        delete_button.set_label('Delete server')
-        delete_button.connect('clicked', self.delete_server)
+        favorite_button = Gtk.Button()
+        if self.load.is_favorite_server(self.data):
+            favorite_button.set_label('Remove favorites')
+            favorite_button.connect('clicked', self.delete_server)
+        else:
+            favorite_button.set_label('Add favorites')
+            favorite_button.connect('clicked', self.favorite_server)
 
-        button_box.pack_start(delete_button, True, True, 0)
+        button_box.pack_start(favorite_button, True, True, 0)
 
         play_button = Gtk.Button()
         play_button.set_label('Play')
@@ -378,7 +382,16 @@ class ServerPage:
 
     def delete_server(self, button):
         self.load.delete_server(self.data)
-        self.back(None)
+        button.set_label('Add favorites')
+        button.connect('clicked', self.favorite_server)
+
+    def favorite_server(self, button):
+        print(self.data)
+        if not self.load.is_favorite_server(self.data):
+            self.load.add_new_server(self.data.host, self.data.port, self.data.game)
+
+            button.set_label('Remove favorites')
+            button.connect('clicked', self.delete_server)
 
     def play_button(self, button):
         location = self.settings.get_game_location(self.data.game)
