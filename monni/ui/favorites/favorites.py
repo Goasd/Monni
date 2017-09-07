@@ -48,4 +48,4 @@ class Favorites:
         return favorites_down
 
     def _new_server(self, button):
-        NewServer(self.win, self.load)
+        NewServer(self.win, self.load_servers)

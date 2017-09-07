@@ -117,21 +117,6 @@ class Servers:
 
         GLib.idle_add(self.call_when_server_deleted, server)
 
-    def add_list(self, hostname, port, game):
-        pass
-
-    def add_new_list(self, hostname, port, game):
-
-        server_list_file = open(self.masters, 'r')
-        server_list = eval(server_list_file.read())
-        server_list.append([hostname, port, game])
-
-        server_list_file = open(self.masters, 'w')
-        server_list_file.write(repr(server_list))
-        server_list_file.close()
-
-        self.add_list(hostname, port, game)
-
     def is_favorite_server(self, check_server):
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
@@ -187,3 +172,15 @@ class Lists:
         s = Master()
         server.servers = s.get_servers(server.host, server.port, server.game)
         GLib.idle_add(self.call_when_server_updated, server)
+
+    def add_new_list(self, hostname, port, game):
+
+        server_list_file = open(self.masters, 'r')
+        server_list = eval(server_list_file.read())
+        server_list.append([hostname, port, game])
+
+        server_list_file = open(self.masters, 'w')
+        server_list_file.write(repr(server_list))
+        server_list_file.close()
+
+        self.add_server(hostname, port, game)
