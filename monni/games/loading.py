@@ -26,9 +26,12 @@ class Settings:
             config.write(configfile)
 
     def get_game_location(self, game):
-        config = configparser.ConfigParser()
-        config.read(self.file)
-        return config[game]['location']
+        try:
+            config = configparser.ConfigParser()
+            config.read(self.file)
+            return config[game]['location']
+        except:
+            return None
 
 class Servers:
 
