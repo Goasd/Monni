@@ -1,5 +1,8 @@
 import os
 import gi
+
+from monni.ui.server.player_info import PlayerInfo
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
@@ -9,9 +12,10 @@ from monni.games.urbanterror.urbanterror import UrbanConnect
 
 class ListPlayerData(Gtk.ListBoxRow):
 
-    def __init__(self, player):
+    def __init__(self, player, win):
         super(Gtk.ListBoxRow, self).__init__()
         self.player = player
+        self.win = win
         self.setup_row()
 
     def setup_row(self):
@@ -45,7 +49,7 @@ class ListPlayerData(Gtk.ListBoxRow):
         self.add(row)
 
     def select_player(self):
-        print(self.player.name)
+        PlayerInfo(self.win).setup(self.player)
 
 
 class ServerPage:
@@ -250,7 +254,7 @@ class ServerPage:
         players = self.data.playerlist
 
         for player in players:
-            self.players_list.add(ListPlayerData(player))
+            self.players_list.add(ListPlayerData(player, self.win))
 
         self.players_list.connect('row-activated', lambda widget, row: row.select_player())
         players_window.add(self.players_list)
