@@ -105,8 +105,9 @@ class ServerPage:
         label_admin_password.set_text('Admin password')
 
         self.text_password = Gtk.Entry()
+        self.text_password.set_text(self.settings.get_admin_password(self.data))
         admin_save_button = Gtk.Button()
-        admin_save_button.set_label("Set")
+        admin_save_button.set_label("Save")
         admin_save_button.connect('clicked', self.save_password, self.text_password.get_text)
 
         admin_password_box.pack_start(self.text_password, True, True, 0)
@@ -121,8 +122,9 @@ class ServerPage:
         label_server_password.set_text('Server password')
 
         self.text_server_password = Gtk.Entry()
+        self.text_server_password.set_text(self.settings.get_server_password(self.data))
         admin_save_button = Gtk.Button()
-        admin_save_button.set_label("Set")
+        admin_save_button.set_label("Save")
         admin_save_button.connect('clicked', self.save_server_password, self.text_server_password.get_text)
 
         admin_password_box.pack_start(self.text_server_password, True, True, 0)
@@ -135,9 +137,11 @@ class ServerPage:
 
     def save_password(self, button, password):
         self.data.admin_password = password()
+        self.settings.set_admin_password(self.data, self.data.admin_password)
 
     def save_server_password(self, button, password):
         self.data.server_password = password()
+        self.settings.set_server_password(self.data, self.data.server_password)
 
     def setup_console(self, notebook):
         info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)

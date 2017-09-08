@@ -12,8 +12,8 @@ class GameServer:
         self.playerlist = []
         self.gametype = None
 
-        self.admin_password = None
-        self.server_password = None
+        self.admin_password = ''
+        self.server_password = ''
 
         self.ping = None
 

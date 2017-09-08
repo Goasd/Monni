@@ -34,6 +34,68 @@ class Settings:
         except:
             return None
 
+    def set_server_password(self, server, password):
+        server_list_file = open('servers', 'r')
+        server_list = eval(server_list_file.read())
+
+        server_list_file.close()
+
+        for s in server_list:
+            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
+                try:
+                    s[3] = password
+                except:
+                    pass
+
+        server_list_file = open('servers', 'w')
+        server_list_file.write(repr(server_list))
+        server_list_file.close()
+
+    def get_server_password(self, server):
+        server_list_file = open('servers', 'r')
+        server_list = eval(server_list_file.read())
+
+        server_list_file.close()
+        for s in server_list:
+            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
+                try:
+                    return s[3]
+                except:
+                    pass
+        return ''
+
+    def set_admin_password(self, server, password):
+        server_list_file = open('servers', 'r')
+        server_list = eval(server_list_file.read())
+
+        server_list_file.close()
+
+        for s in server_list:
+            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
+                try:
+                    s[4] = password
+                except:
+                    pass
+        print(server_list)
+        server_list_file = open('servers', 'w')
+        server_list_file.write(repr(server_list))
+        server_list_file.close()
+
+
+    def get_admin_password(self, server):
+        server_list_file = open('servers', 'r')
+        server_list = eval(server_list_file.read())
+
+        server_list_file.close()
+        for s in server_list:
+            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
+                try:
+                    return s[4]
+                except:
+                    pass
+        return ''
+
+
 class Servers:
 
     def __init__(self):
@@ -63,7 +125,7 @@ class Servers:
     def servers(self):
 
         default_servers = [
-            ['151.80.41.55', 27960, 'Urban Terror']
+            ['151.80.41.55', 27960, 'Urban Terror', '', '']
         ]
 
         try:
@@ -109,7 +171,7 @@ class Servers:
 
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
-        server_list.append([hostname, port, game])
+        server_list.append([hostname, port, game, '', ''])
 
         server_list_file = open(self.file, 'w')
         server_list_file.write(repr(server_list))
@@ -121,7 +183,7 @@ class Servers:
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
 
-        server_list.remove([server.host, server.port, server.game])
+        server_list.remove([server.host, server.port, server.game, server.server_password, server.admin_password])
 
         server_list_file = open(self.file, 'w')
         server_list_file.write(repr(server_list))
