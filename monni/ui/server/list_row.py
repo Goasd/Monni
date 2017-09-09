@@ -1,3 +1,5 @@
+import html
+
 from gi.repository import Gtk
 
 
@@ -56,9 +58,9 @@ class ListServerData(Gtk.ListBoxRow):
         self.page.setup(self.game_server, self.back, self.load)
 
     def update(self):
-        self.a.set_markup('<span size="x-large">%.30s</span>\n<span>%s:%s</span>' %
+        self.a.set_markup('<span size="x-large">%s</span>\n<span>%s:%s</span>' %
                           (
-                              self.game_server.hostname,
+                              html.escape('%.30s'%self.game_server.hostname),
                               self.game_server.host,
                               self.game_server.port
                           )

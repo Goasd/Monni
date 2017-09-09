@@ -1,3 +1,4 @@
+import html
 import os
 from gi.repository import Gtk
 
@@ -201,9 +202,10 @@ class ServerPage:
         box.set_halign(Gtk.Align.START)
 
         name = Gtk.Label()
-        name.set_markup('<span size="xx-large">%s</span>' % self.data.hostname)
+        name.set_markup('<span size="xx-large">%s</span>' % html.escape(self.data.hostname))
         name.set_valign(Gtk.Align.START)
         name.set_halign(Gtk.Align.START)
+        name.set_line_wrap(True)
         box.add(name)
 
         name = Gtk.Label()

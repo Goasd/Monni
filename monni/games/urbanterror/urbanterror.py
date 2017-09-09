@@ -73,7 +73,7 @@ class UrbanServer(Server):
         variables = dict(zip(keys, values))
         self.gameserver.max_players = variables['sv_maxclients']
         self.gameserver.players = len(players)
-        self.gameserver.hostname = html.escape(self.clean_color_code(variables['sv_hostname']))
+        self.gameserver.hostname = self.clean_color_code(variables['sv_hostname'])
         self.gameserver.variables = variables
         self.gameserver.map = variables['mapname']
         self.gameserver.gametype = GAME_TYPES[variables['g_gametype']]
