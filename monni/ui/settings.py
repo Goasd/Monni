@@ -28,6 +28,7 @@ class Settings:
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         store = Gtk.ListStore(str)
         store.append(["Urban Terror"])
+        store.append(["Teeworlds"])
 
         tree = Gtk.TreeView(store)
         renderer = Gtk.CellRendererText()
@@ -38,11 +39,14 @@ class Settings:
         select.connect("changed", self.on_tree_selection_changed)
 
         self.box_outer.pack_start(tree, True, True, 0)
+        self.settings_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.box_outer.pack_start(self.settings_box, True, True, 0)
         self.box_outer.show_all()
         self.pop.add(self.box_outer)
 
     def game_settings(self, game):
-        settings_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        for a in self.settings_box.get_children():
+            self.settings_box.remove(a)
 
         setting_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
@@ -51,7 +55,7 @@ class Settings:
         game_name.set_valign(Gtk.Align.START)
         game_name.set_halign(Gtk.Align.START)
 
-        settings_box.add(game_name)
+        self.settings_box.add(game_name)
 
         game_name = Gtk.Label()
         game_name.set_markup('Game location')
@@ -68,9 +72,8 @@ class Settings:
         button1.connect("clicked", self.on_file_clicked, game)
         setting_box.add(button1)
 
-        settings_box.add(setting_box)
+        self.settings_box.add(setting_box)
 
-        self.box_outer.pack_start(settings_box, True, True, 0)
         self.box_outer.show_all()
 
     def on_file_clicked(self, widget, game):

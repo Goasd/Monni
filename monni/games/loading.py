@@ -34,7 +34,7 @@ class Settings:
             config.read(self.file)
             return config[game]['location']
         except:
-            return None
+            return ''
 
     def set_server_password(self, server, password):
         server_list_file = open('servers', 'r')

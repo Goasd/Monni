@@ -404,7 +404,10 @@ class ServerPage:
 
     def play_button(self, button):
         location = self.settings.get_game_location(self.data.game)
-        if self.data.server_password is None:
-            os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
-        else:
-            os.system('%s +connect %s:%s +password %s &' % (location, self.data.host, self.data.port, self.data.server_password))
+        if self.data.game == 'Urban Terror':
+            if self.data.server_password is None:
+                os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))
+            else:
+                os.system('%s +connect %s:%s +password %s &' % (location, self.data.host, self.data.port, self.data.server_password))
+        elif self.data.game == 'Teeworlds':
+            os.system('%s "connect %s:%s" &' % (location, self.data.host, self.data.port))
