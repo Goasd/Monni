@@ -3,7 +3,7 @@ import threading
 import time
 from gi.repository import Gtk
 
-from monni.ui.server.list_row import ListServerData
+from ..ui.server.list_row import ListServerData
 
 
 class Servers:

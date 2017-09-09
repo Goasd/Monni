@@ -1,12 +1,8 @@
-import gi
-
 from monni.ui.server.page import ServerPage
 from .lists.server_lists import ServerLists
 from .favorites.favorites import Favorites
 from .settings import Settings
-from ..games.loading import Lists
 
-gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
 
 class Home:

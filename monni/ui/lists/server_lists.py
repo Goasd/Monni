@@ -1,15 +1,11 @@
 import threading
 import time
 
-import gi
-
-from monni.games.loading import Lists
-
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk
 
 from .list_page import ListPage
 from .new_list import NewList
+from ...games.loading import Lists
 
 la = threading.Lock()
 

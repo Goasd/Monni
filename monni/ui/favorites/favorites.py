@@ -1,11 +1,6 @@
-import gi
-
-from monni.games import loading
-from monni.games.loading import Lists
-
-gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from ...games import loading
 from ..servers import Servers
 from .new_server import NewServer
 

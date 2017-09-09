@@ -1,13 +1,9 @@
 import os
-import gi
-
-from monni.ui.server.player_info import PlayerInfo
-
-gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from monni.games import loading
 from monni.games.urbanterror.urbanterror import UrbanConnect
+from monni.ui.server.player_info import PlayerInfo
 
 
 class ListPlayerData(Gtk.ListBoxRow):
