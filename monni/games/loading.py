@@ -4,6 +4,8 @@ from queue import Queue
 
 from gi.repository import GLib
 
+from monni.games.teeworlds.master import TeeworldsMaster
+from monni.games.teeworlds.teeworlds import TeeworldsServer
 from .serverslist import ServersList
 from .urbanterror.master import Master
 from .game_server import GameServer
@@ -218,6 +220,8 @@ class ServerDownloader(threading.Thread):
     def add_server(self, gameserver):
         if gameserver.game == 'Urban Terror':
             UrbanServer(gameserver)
+        elif gameserver.game == 'Teeworlds':
+            TeeworldsServer(gameserver)
         else:
             return ValueError
 
@@ -307,6 +311,9 @@ class ListDownloader(threading.Thread):
     def add_server(self, masterserver):
         if masterserver.game == 'Urban Terror':
             masterserver_servers = Master().get_servers(masterserver.host, masterserver.port, masterserver.game)
+            masterserver.servers = masterserver_servers
+        elif masterserver.game == 'Teeworlds':
+            masterserver_servers = TeeworldsMaster().get_servers(masterserver.host, masterserver.port, masterserver.game)
             masterserver.servers = masterserver_servers
         else:
             return ValueError

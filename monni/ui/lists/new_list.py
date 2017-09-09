@@ -27,6 +27,12 @@ class NewList:
         button.set_size_request(10, 10)
         self.box_outer.pack_start(button, True, True, 0)
 
+        button = Gtk.Button()
+        button.set_label('Teeworlds')
+        button.connect('clicked', self.add_host_and_port, 'Teeworlds')
+        button.set_size_request(10, 10)
+        self.box_outer.pack_start(button, True, True, 0)
+
         self.box_outer.show_all()
         self.pop.add(self.box_outer)
 
