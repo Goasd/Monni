@@ -7,12 +7,12 @@ from gi.repository import GLib
 from monni.games.teeworlds.master import TeeworldsMaster
 from monni.games.teeworlds.teeworlds import TeeworldsServer
 from .serverslist import ServersList
-from .urbanterror.master import Master
+from .urbanterror.master import UrbanTerrorMaster
 from .game_server import GameServer
 from .urbanterror.urbanterror import UrbanServer
 
-class Settings:
 
+class Settings:
     def __init__(self):
         self.file = 'config.ini'
 
@@ -87,7 +87,6 @@ class Settings:
         server_list_file.write(repr(server_list))
         server_list_file.close()
 
-
     def get_admin_password(self, server):
         server_list_file = open('servers', 'r')
         server_list = eval(server_list_file.read())
@@ -103,7 +102,6 @@ class Settings:
 
 
 class Servers:
-
     def __init__(self):
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
@@ -209,7 +207,6 @@ class Servers:
 
 
 class ServerDownloader(threading.Thread):
-
     def __init__(self, queue, call_when_server_ready):
         threading.Thread.__init__(self)
         self.queue = queue
@@ -232,8 +229,16 @@ class ServerDownloader(threading.Thread):
         GLib.idle_add(self.call_when_server_ready, gameserver)
 
 
-class Lists:
+def get_masterserver(game):
+    if game == 'Urban Terror':
+        return UrbanTerrorMaster()
+    elif game == 'Teeworlds':
+        return TeeworldsMaster()
 
+    return NotImplementedError
+
+
+class Lists:
     def __init__(self):
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
@@ -257,7 +262,6 @@ class Lists:
             server_list = eval(server_list_file.read())
         server_list_file.close()
 
-
         for _ in range(1):
             t = ListDownloader(self.q, self.call_when_server_created)
             t.setDaemon(True)
@@ -272,7 +276,7 @@ class Lists:
 
     def add_server(self, hostname, port, game):
 
-        s = Master()
+        s = get_masterserver(game)
         a = ServersList()
         a.host = hostname
         a.port = port
@@ -282,7 +286,7 @@ class Lists:
         GLib.idle_add(self.call_when_server_created, a)
 
     def update_server_data(self, server):
-        s = Master()
+        s = get_masterserver(server.game)
         server.servers = s.get_servers(server.host, server.port, server.game)
         GLib.idle_add(self.call_when_server_updated, server)
 
@@ -300,7 +304,6 @@ class Lists:
 
 
 class ListDownloader(threading.Thread):
-
     def __init__(self, queue, call_when_server_ready):
         threading.Thread.__init__(self)
         self.queue = queue
@@ -313,13 +316,8 @@ class ListDownloader(threading.Thread):
             self.queue.task_done()
 
     def add_server(self, masterserver):
-        if masterserver.game == 'Urban Terror':
-            masterserver_servers = Master().get_servers(masterserver.host, masterserver.port, masterserver.game)
-            masterserver.servers = masterserver_servers
-        elif masterserver.game == 'Teeworlds':
-            masterserver_servers = TeeworldsMaster().get_servers(masterserver.host, masterserver.port, masterserver.game)
-            masterserver.servers = masterserver_servers
-        else:
-            return ValueError
+        s = get_masterserver(masterserver.game)
+        masterserver_servers = s.get_servers(masterserver.host, masterserver.port, masterserver.game)
+        masterserver.servers = masterserver_servers
 
         GLib.idle_add(self.call_when_server_ready, masterserver)

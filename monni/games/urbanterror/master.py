@@ -3,7 +3,7 @@ import socket
 from ..game_server import GameServer
 
 
-class Master:
+class UrbanTerrorMaster:
     def __init__(self):
         pass
 
