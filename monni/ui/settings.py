@@ -64,10 +64,9 @@ class Settings:
 
         setting_box.add(game_name)
 
-
-        folder = Gtk.Entry()
-        folder.set_text(self.settings.get_game_location(game))
-        setting_box.add(folder)
+        self.folder = Gtk.Entry()
+        self.folder.set_text(self.settings.get_game_location(game))
+        setting_box.add(self.folder)
         button1 = Gtk.Button("...")
         button1.connect("clicked", self.on_file_clicked, game)
         setting_box.add(button1)
@@ -86,6 +85,7 @@ class Settings:
 
         if response == Gtk.ResponseType.OK:
             self.settings.set_game_location(game, dialog.get_filename())
+            self.folder.set_text(dialog.get_filename())
 
         dialog.destroy()
 

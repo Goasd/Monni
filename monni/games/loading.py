@@ -23,8 +23,12 @@ class Settings:
 
     def set_game_location(self, game, location):
         config = configparser.ConfigParser()
-        config[str(game)] = {}
-        config[str(game)]['location'] = location
+        config.read(self.file)
+        try:
+            config.set(game, 'location', location)
+        except:
+            config[str(game)] = {}
+            config[str(game)]['location'] = location
         with open(self.file, 'w') as configfile:
             config.write(configfile)
 
