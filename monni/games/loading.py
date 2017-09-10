@@ -4,13 +4,30 @@ from queue import Queue
 
 from gi.repository import GLib
 
+from monni.games.teeworlds.console import TeeworldsConsole
 from monni.games.teeworlds.master import TeeworldsMaster
 from monni.games.teeworlds.teeworlds import TeeworldsServer
+
+from monni.games.urbanterror.console import UrbanTerrorConsole
 from .serverslist import ServersList
 from .urbanterror.master import UrbanTerrorMaster
 from .game_server import GameServer
 from .urbanterror.urbanterror import UrbanServer
 
+
+class Console:
+    def __init__(self, gameserver):
+        self.gameserver = gameserver
+        if self.gameserver.game == 'Urban Terror':
+            self.console = UrbanTerrorConsole(self.gameserver)
+        elif self.gameserver.game == 'Teeworlds':
+            self.console = TeeworldsConsole(self.gameserver)
+
+    def send_command(self, password, command):
+        return self.console.send_command(password, command)
+
+    def support(self):
+        return self.console.support()
 
 class Settings:
     def __init__(self):

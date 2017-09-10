@@ -3,6 +3,7 @@ import os
 from gi.repository import Gtk
 
 from monni.games import loading
+from monni.games.loading import Console
 from monni.games.urbanterror.urbanterror import UrbanConnect
 from monni.ui.server.player_info import PlayerInfo
 
@@ -145,6 +146,9 @@ class ServerPage:
         self.settings.set_server_password(self.data, self.data.server_password)
 
     def setup_console(self, notebook):
+        self.console = Console(self.data)
+        if not self.console.support():
+            return
         info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         info_notebook.set_border_width(10)
 
@@ -181,8 +185,7 @@ class ServerPage:
         iter = self.command_history_buffer.get_end_iter()
         self.command_history_buffer.insert(iter, text+"\n")
 
-        c = UrbanConnect(self.data.host, self.data.port)
-        a = c.send_command(self.data.admin_password, text)
+        a = self.console.send_command(self.settings.get_admin_password(self.data), text)
 
         iter = self.command_history_buffer.get_end_iter()
         for d in a:

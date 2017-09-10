@@ -116,14 +116,6 @@ class UrbanConnect(Connect):
 
         return data
 
-    def send_command(self, password, command):
-        rcon_command = 'rcon %s %s' % (password, command)
-        data = self.send_and_recv(rcon_command)
-        data = data[9:-1]
-        data = str(data,'utf-8')
-        data = data.split('\\n')
-        return data
-
     def send_and_recv(self, command):
         command = str.encode(command)
         retries = 2
