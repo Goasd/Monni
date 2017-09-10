@@ -99,7 +99,7 @@ class Servers:
         self.servers.add(ListServerData(server, self.win, self.load, self.page, self.prev, self.back))
 
         def sort_func(row_1, row_2, data, notify_destroy):
-            return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
+            return row_1.game_server.players < row_2.game_server.players
 
         self.servers.set_sort_func(sort_func, None, False)
         self.servers.show_all()
@@ -116,6 +116,6 @@ class Servers:
                 server.update()
 
         def sort_func(row_1, row_2, data, notify_destroy):
-            return len(row_1.game_server.playerlist) < len(row_2.game_server.playerlist)
+            return row_1.game_server.players < row_2.game_server.players
 
         self.servers.set_sort_func(sort_func, None, False)
