@@ -1,6 +1,6 @@
 import html
 import os
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 from monni.games import loading
 from monni.games.loading import Console
@@ -165,6 +165,7 @@ class ServerPage:
         box_command = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
         self.text_command = Gtk.Entry()
+        self.text_command.connect('key-press-event', self.on_key_press_command)
         send_button = Gtk.Button()
         send_button.set_label("Send")
         send_button.connect('clicked', self.send_command, self.text_command.get_text)
@@ -177,6 +178,10 @@ class ServerPage:
         box_vertical.pack_end(box_command, False, False, 0)
 
         info_notebook.pack_end(box_vertical, True, True, 0)
+
+    def on_key_press_command(self, widget, ev, data=None):
+        if ev.keyval == Gdk.KEY_Return:
+            self.send_command(None, widget.get_text)
 
     def send_command(self, button, command):
         text = command()
