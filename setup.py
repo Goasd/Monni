@@ -9,5 +9,8 @@ setup(
     license='',
     author='',
     author_email='',
-    description=''
+    description='',
+    entry_points = {
+        'console_scripts': ['monni=monni.__init__:main'],
+    }
 )
