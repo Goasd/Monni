@@ -1,7 +1,7 @@
 class GameServer:
 
     def __init__(self):
-        self.hostname = None
+        self.hostname = '-'
         self.host = None
         self.port = None
         self.game = None
