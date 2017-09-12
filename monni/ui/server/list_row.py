@@ -1,6 +1,6 @@
 import html
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 
 
 class ListServerData(Gtk.ListBoxRow):
@@ -19,6 +19,7 @@ class ListServerData(Gtk.ListBoxRow):
         self.a.set_valign(Gtk.Align.START)
         self.a.set_halign(Gtk.Align.START)
         self.a.set_justify(Gtk.Justification.LEFT)
+        self.a.set_ellipsize(Pango.EllipsizeMode.END)
 
         self.c = Gtk.Label()
         self.c.set_width_chars(5)
@@ -60,7 +61,7 @@ class ListServerData(Gtk.ListBoxRow):
     def update(self):
         self.a.set_markup('<span size="x-large">%s</span>\n<span>%s:%s</span>' %
                           (
-                              html.escape('%.30s'%self.game_server.hostname),
+                              html.escape('%s'%self.game_server.hostname),
                               self.game_server.host,
                               self.game_server.port
                           )
