@@ -68,6 +68,9 @@ class ServerPage:
         self.win.set_title("%s - Monni" % self.data.hostname)
 
         notebook = Gtk.Notebook()
+        notebook.add_events(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK)
+        notebook.connect('scroll-event', self.notebook_scroll)
+
         box_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.setup_up_buttons()
@@ -89,6 +92,12 @@ class ServerPage:
         self.setup_down_buttons()
         self.win.add(self.box_outer)
         self.win.show_all()
+
+    def notebook_scroll(self, widget, event):
+        if event.get_scroll_deltas()[2] < 0:
+            widget.prev_page()
+        else:
+            widget.next_page()
 
     def setup_passwords(self, notebook):
         info_notebook = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
