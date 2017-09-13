@@ -118,13 +118,32 @@ class Settings:
         return ''
 
 
-class Servers:
+class Load:
     def __init__(self):
+        self.servers = []
+
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
+
+        self.call_when_list_created = lambda: None
+        self.call_when_list_deleted = lambda: None
+        self.call_when_list_updated = lambda: None
+
+        self.masters = Lists()
+        self.masters.servers = self.servers
+        self.masters.server_add = self.servers_add_new
+
+        self.masters.call_when_server_created = self.call_when_list_created
+        self.masters.call_when_server_deleted = self.call_when_list_deleted
+        self.masters.call_when_server_updated = self.call_when_list_updated
+
         self.file = 'servers'
         self.q = Queue()
+        self.settings = Settings()
+
+    def get_master_servers(self):
+        self.masters.lists()
 
     def update_server_data(self, server):
         for _ in range(3):
@@ -143,7 +162,7 @@ class Servers:
         for server in server_list:
             self.q.put(server)
 
-    def servers(self):
+    def get_servers(self):
 
         default_servers = [
             ['151.80.41.55', 27960, 'Urban Terror', '', '']
@@ -168,25 +187,33 @@ class Servers:
             t.start()
 
         for server in server_list:
-            gameserver = GameServer()
-            gameserver.host = server[0]
-            gameserver.port = server[1]
-            gameserver.game = server[2]
+            gameserver = self.servers_add_new(server[0], server[1], server[2])
+            self.servers.append(gameserver)
             q.put(gameserver)
 
     def add_server(self, hostname, port, game):
 
-        gameserver = GameServer()
-        gameserver.game = game
-        gameserver.port = port
-        gameserver.host = hostname
+        gameserver = self.servers_add_new(hostname, port, game)
 
         if game == 'Urban Terror':
             UrbanServer(gameserver)
+        elif game == 'Teeworlds':
+            TeeworldsServer(gameserver)
         else:
             return ValueError
 
         GLib.idle_add(self.call_when_server_created, gameserver)
+
+    def servers_add_new(self, host, port, game):
+        for server in self.servers:
+            if server.host == host and server.port == port and server.game == game:
+                return server
+
+        gameserver = GameServer()
+        gameserver.game = game
+        gameserver.port = port
+        gameserver.host = host
+        return gameserver
 
     def add_new_server(self, hostname, port, game):
 
@@ -204,7 +231,10 @@ class Servers:
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
 
-        server_list.remove([server.host, server.port, server.game, server.server_password, server.admin_password])
+        for s in server_list:
+            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
+                server_list.remove(s)
+                break
 
         server_list_file = open(self.file, 'w')
         server_list_file.write(repr(server_list))
@@ -260,6 +290,8 @@ class Lists:
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
+        self.server_add = None
+
         self.masters = 'masters'
         self.q = Queue()
 
@@ -280,7 +312,7 @@ class Lists:
         server_list_file.close()
 
         for _ in range(1):
-            t = ListDownloader(self.q, self.call_when_server_created)
+            t = ListDownloader(self.q, self.call_when_server_created, self.server_add)
             t.setDaemon(True)
             t.start()
 
@@ -321,10 +353,11 @@ class Lists:
 
 
 class ListDownloader(threading.Thread):
-    def __init__(self, queue, call_when_server_ready):
+    def __init__(self, queue, call_when_server_ready, servers_add):
         threading.Thread.__init__(self)
         self.queue = queue
         self.call_when_server_ready = call_when_server_ready
+        self.servers_add = servers_add
 
     def run(self):
         while True:
@@ -334,7 +367,7 @@ class ListDownloader(threading.Thread):
 
     def add_server(self, masterserver):
         s = get_masterserver(masterserver.game)
-        masterserver_servers = s.get_servers(masterserver.host, masterserver.port, masterserver.game)
+        masterserver_servers = s.get_servers(masterserver.host, masterserver.port, masterserver.game, self.servers_add)
         masterserver.servers = masterserver_servers
 
         GLib.idle_add(self.call_when_server_ready, masterserver)

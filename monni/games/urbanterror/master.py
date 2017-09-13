@@ -7,7 +7,7 @@ class UrbanTerrorMaster:
     def __init__(self):
         pass
 
-    def get_servers(self, server, port, game):
+    def get_servers(self, server, port, game, servers_add):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(3)
@@ -35,10 +35,7 @@ class UrbanTerrorMaster:
                     break
                 ip = socket.inet_ntop(socket.AF_INET, packet[i + 1:i + 5])
                 port = 256 * packet[i + 5] + packet[i + 6]
-                gameserver = GameServer()
-                gameserver.host = str(ip)
-                gameserver.port = int(port)
-                gameserver.game = game
+                gameserver = servers_add(str(ip), int(port), game)
                 servers.append(gameserver)
                 i += 7
         return servers

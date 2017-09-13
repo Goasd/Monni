@@ -1,3 +1,4 @@
+from monni.games.loading import Load
 from monni.ui.server.page import ServerPage
 from .lists.server_lists import ServerLists
 from .favorites.favorites import Favorites
@@ -12,7 +13,8 @@ class Home:
 
         self.stack_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-        self.page = ServerPage(self.win, self)
+        self.load = Load()
+        self.page = ServerPage(self.win, self, self.load)
 
     def show(self):
         self.win.add(self.stack_box)
@@ -25,10 +27,10 @@ class Home:
         stack = Gtk.Stack()
         stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 
-        favorites = Favorites(self.win, self, self.page)
+        favorites = Favorites(self.win, self, self.page, self.load)
         favorites.setup(stack)
 
-        server_lists = ServerLists(self.win, self, self.page)
+        server_lists = ServerLists(self.win, self, self.page, self.load)
         server_lists.setup(stack)
 
         stack_switcher = Gtk.StackSwitcher()

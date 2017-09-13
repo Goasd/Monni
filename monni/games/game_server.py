@@ -17,3 +17,5 @@ class GameServer:
 
         self.ping = None
 
+        self.sources = []
+

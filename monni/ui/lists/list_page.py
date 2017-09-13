@@ -6,9 +6,9 @@ from monni.ui.servers import Servers
 
 class ListPage:
 
-    def __init__(self, win, home, page):
+    def __init__(self, win, home, page, load):
         self.win = win
-        self.load_servers = loading.Servers()
+        self.load = load
         self.home = home
         self.data = None
         self.page = page
@@ -18,7 +18,7 @@ class ListPage:
 
     def setup(self, data):
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.servers_ui = Servers(self.win, self.home, self.load_servers, self.page, self.box_outer, self)
+        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
         self.data = data
 
         self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
@@ -39,7 +39,7 @@ class ListPage:
         self.win.show_all()
 
     def server_data(self):
-        return self.load_servers.servers_add(self.data.servers)
+        return self.load.servers_add(self.data.servers)
 
     def setup_up_buttons(self):
         button_box = Gtk.Box(spacing=6)

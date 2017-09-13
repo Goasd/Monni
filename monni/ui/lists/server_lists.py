@@ -63,17 +63,17 @@ class ListData(Gtk.ListBoxRow):
 
 class ServerLists:
 
-    def __init__(self, win, home, page):
+    def __init__(self, win, home, page, load):
         self.win = win
         self.home = home
 
-        self.load = Lists()
-        self.load.call_when_server_created = self.list_created
-        self.load.call_when_server_deleted = self.list_deleted
-        self.load.call_when_server_updated = self.list_updated
+        self.load = load
+        self.load.masters.call_when_server_created = self.list_created
+        self.load.masters.call_when_server_deleted = self.list_deleted
+        self.load.masters.call_when_server_updated = self.list_updated
 
         self.page = page
-        self.list_page = ListPage(self.win, self.home, self.page)
+        self.list_page = ListPage(self.win, self.home, self.page, self.load)
 
         self.last_servers_update = time.time()
 
@@ -110,7 +110,7 @@ class ServerLists:
         thread.start()
 
     def lists(self):
-        self.load.lists()
+        self.load.get_master_servers()
 
     def add_server_in_list(self, a):
         self.servers.add(ListData(a, self.win, self.home, self.list_page, self.page))

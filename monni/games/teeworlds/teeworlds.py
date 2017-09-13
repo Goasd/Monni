@@ -30,12 +30,14 @@ class TeeworldsServer(Server):
         self.gameserver.max_players = int(data[9])
         self.gameserver.ping = self.server_data.ping
 
+        players = []
         for i in range(0, int(data[6])):
             player = Player()
             player.name = data[10 + i * 5]
             player.score = data[10 + i * 5 + 3]
             player.ping = '0'
-            self.gameserver.playerlist.append(player)
+            players.append(player)
+        self.gameserver.playerlist = players
 
 
 class TeeConnect(Connect):

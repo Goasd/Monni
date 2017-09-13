@@ -52,17 +52,15 @@ class ListPlayerData(Gtk.ListBoxRow):
 
 class ServerPage:
 
-    def __init__(self, win, home):
+    def __init__(self, win, home, load):
         self.win = win
-        self.load = None
         self.home = home
         self.data = None
-        self.settings = loading.Settings()
+        self.load = load
 
-    def setup(self, data, back, load):
+    def setup(self, data, back):
         self.data = data
         self.backa = back
-        self.load = load
 
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.win.set_title("%s - Monni" % self.data.hostname)
@@ -116,7 +114,7 @@ class ServerPage:
         label_admin_password.set_text('Admin password')
 
         self.text_password = Gtk.Entry()
-        self.text_password.set_text(self.settings.get_admin_password(self.data))
+        self.text_password.set_text(self.load.settings.get_admin_password(self.data))
         admin_save_button = Gtk.Button()
         admin_save_button.set_label("Save")
         admin_save_button.connect('clicked', self.save_password, self.text_password.get_text)
@@ -133,7 +131,7 @@ class ServerPage:
         label_server_password.set_text('Server password')
 
         self.text_server_password = Gtk.Entry()
-        self.text_server_password.set_text(self.settings.get_server_password(self.data))
+        self.text_server_password.set_text(self.load.settings.get_server_password(self.data))
         admin_save_button = Gtk.Button()
         admin_save_button.set_label("Save")
         admin_save_button.connect('clicked', self.save_server_password, self.text_server_password.get_text)
@@ -148,11 +146,11 @@ class ServerPage:
 
     def save_password(self, button, password):
         self.data.admin_password = password()
-        self.settings.set_admin_password(self.data, self.data.admin_password)
+        self.load.settings.set_admin_password(self.data, self.data.admin_password)
 
     def save_server_password(self, button, password):
         self.data.server_password = password()
-        self.settings.set_server_password(self.data, self.data.server_password)
+        self.load.settings.set_server_password(self.data, self.data.server_password)
 
     def setup_console(self, notebook):
         self.console = Console(self.data)
@@ -199,7 +197,7 @@ class ServerPage:
         iter = self.command_history_buffer.get_end_iter()
         self.command_history_buffer.insert(iter, text+"\n")
 
-        a = self.console.send_command(self.settings.get_admin_password(self.data), text)
+        a = self.console.send_command(self.load.settings.get_admin_password(self.data), text)
 
         iter = self.command_history_buffer.get_end_iter()
         for d in a:
@@ -245,6 +243,12 @@ class ServerPage:
 
         name = Gtk.Label()
         name.set_markup('<span size="x-large">Gametype:\t %s</span>' % self.data.gametype)
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
+        box.add(name)
+
+        name = Gtk.Label()
+        name.set_markup('<span size="x-large">Ping:\t\t %s</span>' % self.data.ping)
         name.set_valign(Gtk.Align.START)
         name.set_halign(Gtk.Align.START)
         box.add(name)
@@ -347,7 +351,7 @@ class ServerPage:
         play_button.set_label('Play')
         play_button.connect('clicked', self.play_button)
 
-        if not self.settings.get_game_location(self.data.game):
+        if not self.load.settings.get_game_location(self.data.game):
             play_button.set_sensitive(False)
 
         button_box.pack_start(play_button, True, True, 0)
@@ -404,7 +408,7 @@ class ServerPage:
     def reload_data(self, button):
         self.load.update_server_data(self.data)
         self.win.remove(self.box_outer)
-        self.setup(self.data, self.backa, self.load)
+        self.setup(self.data, self.backa)
 
     def delete_server(self, button):
         self.load.delete_server(self.data)
@@ -420,7 +424,7 @@ class ServerPage:
             button.connect('clicked', self.delete_server)
 
     def play_button(self, button):
-        location = self.settings.get_game_location(self.data.game)
+        location = self.load.settings.get_game_location(self.data.game)
         if self.data.game == 'Urban Terror':
             if self.data.server_password is None:
                 os.system('%s +connect %s:%s &' % (location, self.data.host, self.data.port))

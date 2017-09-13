@@ -1,13 +1,13 @@
 import os
 import unittest
 
-from monni.games.loading import Servers
+from monni.games.loading import Load
 
 
 class LoadTests(unittest.TestCase):
 
     def test_return_value_error_when_nonexistent_game(self):
-        load = Servers()
+        load = Load()
         a = load.add_server('localhost', 27000, 'asd')
         self.assertEqual(ValueError, a)
 
@@ -16,7 +16,7 @@ class LoadTests(unittest.TestCase):
         def call_function(server):
             return None
 
-        load = Servers()
+        load = Load()
         load.call_when_server_created = call_function
         load.file = 'test_server_file'
         load.servers()
@@ -32,7 +32,7 @@ class LoadTests(unittest.TestCase):
         def call_function(server):
             return None
 
-        load = Servers()
+        load = Load()
         load.file = 'test_server_file'
         load.call_when_server_created = call_function
         load.servers()

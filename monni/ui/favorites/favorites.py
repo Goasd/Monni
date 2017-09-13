@@ -7,18 +7,18 @@ from .new_server import NewServer
 
 class Favorites:
 
-    def __init__(self, win, home, page):
+    def __init__(self, win, home, page, load):
         self.win = win
         self.home = home
-        self.load_servers = loading.Servers()
+        self.load = load
         self.page = page
 
     def setup(self, stack):
-        self.servers_ui = Servers(self.win, self.home, self.load_servers, self.page, self.home.stack_box, self.home)
+        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.home.stack_box, self.home)
         favorites_grid = Gtk.Grid()
         favorites_grid.set_hexpand(True)
         favorites_grid.set_vexpand(True)
-        self.servers_ui.setup(favorites_grid, self.load_servers.servers)
+        self.servers_ui.setup(favorites_grid, self.load.get_servers)
 
         favorites_down = self._favorites_down()
         favorites_grid.attach(favorites_down, 0, 4, 1, 1)
@@ -43,4 +43,4 @@ class Favorites:
         return favorites_down
 
     def _new_server(self, button):
-        NewServer(self.win, self.load_servers)
+        NewServer(self.win, self.load)
