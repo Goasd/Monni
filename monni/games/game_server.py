@@ -1,3 +1,6 @@
+from gi.repository import GLib
+
+
 class GameServer:
 
     def __init__(self):
@@ -19,3 +22,7 @@ class GameServer:
 
         self.sources = []
 
+    def call_update(self):
+        print(self.host)
+        for source in self.sources:
+            GLib.idle_add(source, self)

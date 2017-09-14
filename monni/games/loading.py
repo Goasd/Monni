@@ -187,12 +187,12 @@ class Load:
             t.start()
 
         for server in server_list:
-            gameserver = self.servers_add_new(server[0], server[1], server[2])
+            gameserver = self.servers_add_new(server[0], server[1], server[2], self.call_when_server_updated)
             q.put(gameserver)
 
     def add_server(self, hostname, port, game):
 
-        gameserver = self.servers_add_new(hostname, port, game)
+        gameserver = self.servers_add_new(hostname, port, game, self.call_when_server_updated)
 
         if game == 'Urban Terror':
             UrbanServer(gameserver)
@@ -203,15 +203,19 @@ class Load:
 
         GLib.idle_add(self.call_when_server_created, gameserver)
 
-    def servers_add_new(self, host, port, game):
+    def servers_add_new(self, host, port, game, call_method=None):
         for server in self.servers:
             if server.host == host and server.port == port and server.game == game:
+                if call_method != None:
+                    server.sources.append(call_method)
                 return server
 
         gameserver = GameServer()
         gameserver.game = game
         gameserver.port = port
         gameserver.host = host
+        if call_method != None:
+            gameserver.sources.append(call_method)
         self.servers.append(gameserver)
         return gameserver
 
@@ -272,7 +276,6 @@ class ServerDownloader(threading.Thread):
             TeeworldsServer(gameserver)
         else:
             return ValueError
-
         GLib.idle_add(self.call_when_server_ready, gameserver)
 
 
