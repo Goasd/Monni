@@ -7,8 +7,6 @@ from .list_page import ListPage
 from .new_list import NewList
 from ...games.loading import Lists
 
-la = threading.Lock()
-
 
 class ListData(Gtk.ListBoxRow):
 
@@ -73,7 +71,6 @@ class ServerLists:
         self.load.masters.call_when_server_updated = self.list_updated
 
         self.page = page
-        self.list_page = ListPage(self.win, self.home, self.page, self.load)
 
         self.last_servers_update = time.time()
 
@@ -112,10 +109,6 @@ class ServerLists:
     def lists(self):
         self.load.get_master_servers()
 
-    def add_server_in_list(self, a):
-        self.servers.add(ListData(a, self.win, self.home, self.list_page, self.page))
-        self.servers.show_all()
-
     def _lists_down(self):
         lists_down = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
@@ -143,15 +136,14 @@ class ServerLists:
             thread.start()
 
     def update_server(self, server_list):
-
         for server in self.servers:
             if server.server_list == server_list:
                 server.server_list = server_list
                 server.update()
 
     def list_created(self, server):
-
-        self.servers.add(ListData(server, self.win, self.home, self.list_page, self.page))
+        list_page = ListPage(self.win, self.home, self.page, self.load)
+        self.servers.add(ListData(server, self.win, self.home, list_page, self.page))
         self.servers.show_all()
 
     def list_deleted(self, server):
@@ -160,9 +152,6 @@ class ServerLists:
                 self.servers.remove(server)
 
     def list_updated(self, update_server):
-        print('asdlasdjkdas')
-        print(update_server)
-
         for server in self.servers:
             if server.server_list == update_server:
                 server.server_list = update_server

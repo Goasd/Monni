@@ -188,7 +188,6 @@ class Load:
 
         for server in server_list:
             gameserver = self.servers_add_new(server[0], server[1], server[2])
-            self.servers.append(gameserver)
             q.put(gameserver)
 
     def add_server(self, hostname, port, game):
@@ -213,6 +212,7 @@ class Load:
         gameserver.game = game
         gameserver.port = port
         gameserver.host = host
+        self.servers.append(gameserver)
         return gameserver
 
     def add_new_server(self, hostname, port, game):
