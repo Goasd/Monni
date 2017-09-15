@@ -29,6 +29,7 @@ class Console:
     def support(self):
         return self.console.support()
 
+
 class Settings:
     def __init__(self):
         self.file = 'config.ini'
@@ -131,7 +132,6 @@ class Load:
         self.call_when_list_updated = lambda: None
 
         self.masters = Lists()
-        self.masters.servers = self.servers
         self.masters.server_add = self.servers_add_new
 
         self.masters.call_when_server_created = self.call_when_list_created
@@ -194,6 +194,8 @@ class Load:
 
         gameserver = self.servers_add_new(hostname, port, game, self.call_when_server_updated)
 
+        GLib.idle_add(self.call_when_server_created, gameserver)
+
         if game == 'Urban Terror':
             UrbanServer(gameserver)
         elif game == 'Teeworlds':
@@ -201,21 +203,25 @@ class Load:
         else:
             return ValueError
 
-        GLib.idle_add(self.call_when_server_created, gameserver)
-
     def servers_add_new(self, host, port, game, call_method=None):
-        for server in self.servers:
-            if server.host == host and server.port == port and server.game == game:
-                if call_method != None:
-                    server.sources.append(call_method)
-                return server
+
+        server = [x for x in self.servers if x.host == host and x.port == port and x.game == game]
+        if len(server) > 0:
+            server = server[0]
+            if call_method is not None:
+                server.add_call_update_method(call_method)
+            else:
+                server.add_call_update_method(self.call_when_server_updated)
+            return server
 
         gameserver = GameServer()
         gameserver.game = game
         gameserver.port = port
         gameserver.host = host
-        if call_method != None:
-            gameserver.sources.append(call_method)
+        if call_method is not None:
+            gameserver.add_call_update_method(call_method)
+        else:
+            gameserver.add_call_update_method(self.call_when_server_updated)
         self.servers.append(gameserver)
         return gameserver
 
@@ -235,10 +241,10 @@ class Load:
         server_list_file = open(self.file, 'r')
         server_list = eval(server_list_file.read())
 
-        for s in server_list:
-            if s[0] == server.host and s[1] == server.port and s[2] == server.game:
-                server_list.remove(s)
-                break
+        s = [x for x in server_list if x[0] == server.host and x[1] == server.port and x[2] == server.game]
+        if len(s) > 0:
+            s = s[0]
+            server_list.remove(s)
 
         server_list_file = open(self.file, 'w')
         server_list_file.write(repr(server_list))
@@ -277,6 +283,7 @@ class ServerDownloader(threading.Thread):
         else:
             return ValueError
         GLib.idle_add(self.call_when_server_ready, gameserver)
+        gameserver.call_update()
 
 
 def get_masterserver(game):

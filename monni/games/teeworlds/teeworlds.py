@@ -19,6 +19,7 @@ class TeeworldsServer(Server):
         data = self.server_data.data
 
         if data == None:
+            self.gameserver.hostname = 'Error'
             return
 
         data = data.decode("utf-8").split("\x00")

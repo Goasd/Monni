@@ -1,3 +1,5 @@
+import copy
+
 from gi.repository import GLib
 
 
@@ -23,6 +25,8 @@ class GameServer:
         self.sources = []
 
     def call_update(self):
-        print(self.host)
         for source in self.sources:
             GLib.idle_add(source, self)
+
+    def add_call_update_method(self, method):
+        self.sources.append(copy.copy(method))

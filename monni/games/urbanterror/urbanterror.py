@@ -38,10 +38,12 @@ class UrbanServer(Server):
         try:
             self.server_data.update_status()
         except:
+            self.gameserver.hostname = 'Error'
             return
         data = self.server_data.data
 
         if data is None:
+            self.gameserver.hostname = 'Error'
             return
 
         data = data.decode("latin-1").split("\n")
