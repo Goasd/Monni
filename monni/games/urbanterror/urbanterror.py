@@ -5,6 +5,8 @@ import re
 
 import time
 
+import multiprocessing
+
 from ..player import Player
 from ..server import Server, Connect
 
@@ -36,7 +38,9 @@ class UrbanServer(Server):
 
     def update_data(self):
         try:
-            self.server_data.update_status()
+            p = multiprocessing.Process(target=self.server_data.update_status())
+            p.start()
+            p.join()
         except:
             self.gameserver.hostname = 'Error'
             return
