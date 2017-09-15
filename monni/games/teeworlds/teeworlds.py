@@ -2,6 +2,8 @@ import socket
 
 import time
 
+import multiprocessing
+
 from monni.games.player import Player
 from monni.games.server import Server, Connect
 
@@ -15,7 +17,9 @@ class TeeworldsServer(Server):
         self.update_data()
 
     def update_data(self):
-        self.server_data.update_status()
+        p = multiprocessing.Process(target=self.server_data.update_status())
+        p.start()
+        p.join()
         data = self.server_data.data
 
         if data == None:
