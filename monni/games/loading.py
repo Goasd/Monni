@@ -146,10 +146,10 @@ class Load:
         self.masters.lists()
 
     def update_server_data(self, server):
-        for _ in range(3):
-            self.t = ServerDownloader(self.q, self.call_when_server_updated)
-            self.t.setDaemon(True)
-            self.t.start()
+        for _ in range(1):
+            t = ServerDownloader(self.q, None)
+            t.setDaemon(True)
+            t.start()
         self.q.put(server)
 
     def servers_add(self, server_list):
@@ -282,7 +282,8 @@ class ServerDownloader(threading.Thread):
             TeeworldsServer(gameserver)
         else:
             return ValueError
-        GLib.idle_add(self.call_when_server_ready, gameserver)
+        if self.call_when_server_ready is not None:
+            GLib.idle_add(self.call_when_server_ready, gameserver)
         gameserver.call_update()
 
 
