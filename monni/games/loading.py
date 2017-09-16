@@ -298,6 +298,7 @@ def get_masterserver(game):
 
 class Lists:
     def __init__(self):
+        self.servers = []
         self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
@@ -332,7 +333,9 @@ class Lists:
             a.host = server[0]
             a.port = server[1]
             a.game = server[2]
+            a.add_call_update_method(self.call_when_server_updated)
             self.q.put(a)
+            self.servers.append(a)
 
     def add_server(self, hostname, port, game):
 
@@ -341,14 +344,14 @@ class Lists:
         a.host = hostname
         a.port = port
         a.game = game
-        a.servers = s.get_servers(hostname, port, game)
-
+        self.servers.append(a)
+        a.servers = s.get_servers(hostname, port, game, self.server_add)
         GLib.idle_add(self.call_when_server_created, a)
 
     def update_server_data(self, server):
         s = get_masterserver(server.game)
-        server.servers = s.get_servers(server.host, server.port, server.game)
-        GLib.idle_add(self.call_when_server_updated, server)
+        server.servers = s.get_servers(server.host, server.port, server.game, self.server_add)
+        server.call_update()
 
     def add_new_list(self, hostname, port, game):
 

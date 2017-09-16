@@ -1,3 +1,7 @@
+import copy
+from gi.repository import GLib
+
+
 class ServersList:
     def __init__(self):
         self.url = None
@@ -5,3 +9,12 @@ class ServersList:
         self.port = None
         self.servers = []
         self.game = None
+
+        self.sources = []
+
+    def call_update(self):
+        for source in self.sources:
+            GLib.idle_add(source, self)
+
+    def add_call_update_method(self, method):
+        self.sources.append(copy.copy(method))

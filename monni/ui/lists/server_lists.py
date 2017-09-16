@@ -131,7 +131,7 @@ class ServerLists:
 
     def update_servers(self, button):
         for server in self.servers.get_children():
-            thread = threading.Thread(target=self.load.update_server_data, args=(server.server_list,))
+            thread = threading.Thread(target=self.load.masters.update_server_data, args=(server.server_list,))
             thread.daemon = True
             thread.start()
 
