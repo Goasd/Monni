@@ -2,6 +2,7 @@ import threading
 import configparser
 from queue import Queue
 
+import multiprocessing
 from gi.repository import GLib
 
 from monni.games.teeworlds.console import TeeworldsConsole
@@ -143,7 +144,9 @@ class Load:
         self.settings = Settings()
 
     def get_master_servers(self):
-        self.masters.lists()
+        p = multiprocessing.Process(target=self.masters.lists())
+        p.daemon = True
+        p.start()
 
     def update_server_data(self, server):
         for _ in range(1):
@@ -323,7 +326,7 @@ class Lists:
             server_list = eval(server_list_file.read())
         server_list_file.close()
 
-        for _ in range(1):
+        for _ in range(3):
             t = ListDownloader(self.q, self.call_when_server_created, self.server_add)
             t.setDaemon(True)
             t.start()
