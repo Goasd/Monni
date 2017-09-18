@@ -19,13 +19,12 @@ class ListPage:
             self.setup(data)
         else:
             self.win.add(self.box_outer)
+        self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
 
     def setup(self, data):
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
         self.data = data
-
-        self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
 
         servers_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
