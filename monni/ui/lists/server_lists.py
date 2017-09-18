@@ -42,7 +42,7 @@ class ListData(Gtk.ListBoxRow):
 
     def select_server(self):
         self.win.remove(self.home.stack_box)
-        self.list_page.setup(self.server_list)
+        self.list_page.show(self.server_list)
 
     def update(self):
         self.a.set_markup('<span size="x-large">%s:%s</span>\n<span>%s</span>' %

@@ -19,7 +19,7 @@ class LoadTests(unittest.TestCase):
         load = Load()
         load.call_when_server_created = call_function
         load.file = 'test_server_file'
-        load.get_servers()
+        load.get_servers(call_function)
 
         server_list_file = open(load.file, 'r')
         server_list = eval(server_list_file.read())
@@ -35,7 +35,7 @@ class LoadTests(unittest.TestCase):
         load = Load()
         load.file = 'test_server_file'
         load.call_when_server_created = call_function
-        load.get_servers()
+        load.get_servers(call_function)
         a = load.add_new_server('localhost', 27000, 'urbanterror')
         server_list_file = open(load.file, 'r')
         server_list = eval(server_list_file.read())

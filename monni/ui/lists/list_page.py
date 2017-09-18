@@ -12,9 +12,13 @@ class ListPage:
         self.home = home
         self.data = None
         self.page = page
+        self.box_outer = None
 
-    def show(self):
-        self.setup(self.data)
+    def show(self, data=None):
+        if self.box_outer is None:
+            self.setup(data)
+        else:
+            self.win.add(self.box_outer)
 
     def setup(self, data):
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -38,8 +42,8 @@ class ListPage:
         self.win.add(self.box_outer)
         self.win.show_all()
 
-    def server_data(self):
-        return self.load.servers_add(self.data.servers)
+    def server_data(self, a):
+        return self.load.servers_add(self.data.servers, a)
 
     def setup_up_buttons(self):
         button_box = Gtk.Box(spacing=6)

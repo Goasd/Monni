@@ -155,17 +155,18 @@ class Load:
             t.start()
         self.q.put(server)
 
-    def servers_add(self, server_list):
+    def servers_add(self, server_list, call_when_list_created):
 
+        q = Queue()
         for _ in range(3):
-            t = ServerDownloader(self.q, self.call_when_server_created)
+            t = ServerDownloader(q, call_when_list_created)
             t.setDaemon(True)
             t.start()
 
         for server in server_list:
-            self.q.put(server)
+            q.put(server)
 
-    def get_servers(self):
+    def get_servers(self, call_when_list_created):
 
         default_servers = [
             ['151.80.41.55', 27960, 'Urban Terror', '', '']
@@ -185,7 +186,7 @@ class Load:
         q = Queue()
 
         for _ in range(3):
-            t = ServerDownloader(q, self.call_when_server_created)
+            t = ServerDownloader(q, call_when_list_created)
             t.setDaemon(True)
             t.start()
 
@@ -197,7 +198,7 @@ class Load:
 
         gameserver = self.servers_add_new(hostname, port, game, self.call_when_server_updated)
 
-        GLib.idle_add(self.call_when_server_created, gameserver)
+        #GLib.idle_add(self.call_when_server_created, gameserver)
 
         if game == 'Urban Terror':
             UrbanServer(gameserver)

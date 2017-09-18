@@ -44,7 +44,7 @@ class Servers:
         servers_window.add(servers_box)
         grid.attach(servers_window, 0, 3, 1, 1)
 
-        thread = threading.Thread(target=servers())
+        thread = threading.Thread(target=servers, args=(self.server_created,))
         thread.daemon = True
         thread.start()
 
