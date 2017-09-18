@@ -253,6 +253,12 @@ class ServerPage:
         name.set_halign(Gtk.Align.START)
         box.add(name)
 
+        name = Gtk.Label()
+        name.set_markup('<span size="x-large">Game:\t\t %s</span>' % self.data.game)
+        name.set_valign(Gtk.Align.START)
+        name.set_halign(Gtk.Align.START)
+        box.add(name)
+
         info_window.add(box)
 
         info_notebook.pack_end(info_window, True, True, 0)
