@@ -5,7 +5,7 @@ from gi.repository import Gtk
 
 from .list_page import ListPage
 from .new_list import NewList
-from ...games.loading import Lists
+from ...games.loading import MasterServersList
 
 
 class ListData(Gtk.ListBoxRow):
@@ -107,7 +107,7 @@ class ServerLists:
         thread.start()
 
     def lists(self):
-        self.load.get_master_servers()
+        self.load.masters.get_master_servers()
 
     def _lists_down(self):
         lists_down = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -141,9 +141,11 @@ class ServerLists:
                 server.server_list = server_list
                 server.update()
 
-    def list_created(self, server):
+    def list_created(self, server_list):
+        server_list.add_call_update_method(self.update_server)
         list_page = ListPage(self.win, self.home, self.page, self.load)
-        self.servers.add(ListData(server, self.win, self.home, list_page, self.page))
+        server_list.call_game_server_update_method = list_page.servers_ui.server_updated
+        self.servers.add(ListData(server_list, self.win, self.home, list_page, self.page))
         self.servers.show_all()
 
     def list_deleted(self, server):

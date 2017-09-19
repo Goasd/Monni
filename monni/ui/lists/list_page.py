@@ -13,6 +13,7 @@ class ListPage:
         self.data = None
         self.page = page
         self.box_outer = None
+        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
 
     def show(self, data=None):
         if self.box_outer is None:

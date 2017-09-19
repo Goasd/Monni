@@ -7,7 +7,7 @@ class TeeworldsMaster:
     def __init__(self):
         pass
 
-    def get_servers(self, server, port, game, servers_add):
+    def get_servers(self, server, port, game, servers_add, call_game_server_update_method):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(3)
@@ -35,7 +35,7 @@ class TeeworldsMaster:
 
                 port = 256 * data[i * 18 + 16] + data[i * 18 + 17]
 
-                gameserver = servers_add(str(ip), int(port), game)
+                gameserver = servers_add(str(ip), int(port), game, call_game_server_update_method)
                 servers.append(gameserver)
 
         return servers

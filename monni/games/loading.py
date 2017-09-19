@@ -124,7 +124,6 @@ class Load:
     def __init__(self):
         self.servers = []
 
-        self.call_when_server_created = lambda: None
         self.call_when_server_deleted = lambda: None
         self.call_when_server_updated = lambda: None
 
@@ -132,7 +131,7 @@ class Load:
         self.call_when_list_deleted = lambda: None
         self.call_when_list_updated = lambda: None
 
-        self.masters = Lists()
+        self.masters = MasterServersList()
         self.masters.server_add = self.servers_add_new
 
         self.masters.call_when_server_created = self.call_when_list_created
@@ -142,11 +141,6 @@ class Load:
         self.file = 'servers'
         self.q = Queue()
         self.settings = Settings()
-
-    def get_master_servers(self):
-        p = multiprocessing.Process(target=self.masters.lists())
-        p.daemon = True
-        p.start()
 
     def update_server_data(self, server):
         for _ in range(1):
@@ -198,8 +192,6 @@ class Load:
 
         gameserver = self.servers_add_new(hostname, port, game, self.call_when_server_updated)
 
-        #GLib.idle_add(self.call_when_server_created, gameserver)
-
         if game == 'Urban Terror':
             UrbanServer(gameserver)
         elif game == 'Teeworlds':
@@ -207,7 +199,7 @@ class Load:
         else:
             return ValueError
 
-    def servers_add_new(self, host, port, game, call_method=None):
+    def servers_add_new(self, host, port, game, call_method):
 
         server = [x for x in self.servers if x.host == host and x.port == port and x.game == game]
         if len(server) > 0:
@@ -300,7 +292,7 @@ def get_masterserver(game):
     return NotImplementedError
 
 
-class Lists:
+class MasterServersList:
     def __init__(self):
         self.servers = []
         self.call_when_server_created = lambda: None
@@ -310,6 +302,11 @@ class Lists:
 
         self.masters = 'masters'
         self.q = Queue()
+
+    def get_master_servers(self):
+        p = multiprocessing.Process(target=self.lists())
+        p.daemon = True
+        p.start()
 
     def lists(self):
         default_servers = [
@@ -337,6 +334,7 @@ class Lists:
             a.host = server[0]
             a.port = server[1]
             a.game = server[2]
+            self.call_when_server_created(a)
             a.add_call_update_method(self.call_when_server_updated)
             self.q.put(a)
             self.servers.append(a)
@@ -354,7 +352,7 @@ class Lists:
 
     def update_server_data(self, server):
         s = get_masterserver(server.game)
-        server.servers = s.get_servers(server.host, server.port, server.game, self.server_add)
+        server.servers = s.get_servers(server.host, server.port, server.game, self.server_add, server.call_game_server_update_method)
         server.call_update()
 
     def add_new_list(self, hostname, port, game):
@@ -385,7 +383,8 @@ class ListDownloader(threading.Thread):
 
     def add_server(self, masterserver):
         s = get_masterserver(masterserver.game)
-        masterserver_servers = s.get_servers(masterserver.host, masterserver.port, masterserver.game, self.servers_add)
+        masterserver_servers = s.get_servers(masterserver.host, masterserver.port, masterserver.game, self.servers_add, masterserver.call_game_server_update_method)
         masterserver.servers = masterserver_servers
 
-        GLib.idle_add(self.call_when_server_ready, masterserver)
+        masterserver.call_update()
+        #GLib.idle_add(self.call_when_server_ready, masterserver)

@@ -80,12 +80,14 @@ class Servers:
         def filter_func(row, data, notify_destroy):
             if data is '':
                 return True
-            if row.game_server.hostname is '-':
-                return False
             if data in row.game_server.hostname.lower():
                 return True
             if data in row.game_server.host.lower():
                 return True
+            if row.game_server.hostname is '-':
+                return False
+            if row.game_server.hostname is 'Error':
+                return False
             if data in row.game_server.map.lower():
                 return True
             return False
