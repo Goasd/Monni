@@ -5,6 +5,7 @@ from queue import Queue
 import multiprocessing
 from gi.repository import GLib
 
+from monni.games.auto_update import AutoUpdate
 from monni.games.teeworlds.console import TeeworldsConsole
 from monni.games.teeworlds.master import TeeworldsMaster
 from monni.games.teeworlds.teeworlds import TeeworldsServer
@@ -139,14 +140,16 @@ class Load:
         self.masters.call_when_server_updated = self.call_when_list_updated
 
         self.file = 'servers'
-        self.q = Queue()
         self.settings = Settings()
 
-    def update_server_data(self, server):
-        for _ in range(1):
+        self.auto_update = AutoUpdate(self.servers, self)
+        self.q = Queue()
+        for _ in range(2):
             t = ServerDownloader(self.q, None)
             t.setDaemon(True)
             t.start()
+
+    def update_server_data(self, server):
         self.q.put(server)
 
     def servers_add(self, server_list, call_when_list_created):
@@ -187,6 +190,7 @@ class Load:
         for server in server_list:
             gameserver = self.servers_add_new(server[0], server[1], server[2], self.call_when_server_updated)
             q.put(gameserver)
+        self.auto_update.start()
 
     def add_server(self, hostname, port, game):
 
