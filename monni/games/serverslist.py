@@ -11,6 +11,7 @@ class ServersList:
         self.game = None
 
         self.sources = []
+        self.call_game_server_update_method = None
 
     def call_update(self):
         for source in self.sources:

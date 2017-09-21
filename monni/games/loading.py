@@ -3,6 +3,8 @@ import configparser
 from queue import Queue
 
 import multiprocessing
+
+import time
 from gi.repository import GLib
 
 from monni.games.auto_update import AutoUpdate
@@ -161,6 +163,7 @@ class Load:
             t.start()
 
         for server in server_list:
+            GLib.idle_add(call_when_list_created, server)
             q.put(server)
 
     def get_servers(self, call_when_list_created):
@@ -189,6 +192,7 @@ class Load:
 
         for server in server_list:
             gameserver = self.servers_add_new(server[0], server[1], server[2], self.call_when_server_updated)
+            GLib.idle_add(call_when_list_created, gameserver)
             q.put(gameserver)
         self.auto_update.start()
 
@@ -282,8 +286,6 @@ class ServerDownloader(threading.Thread):
             TeeworldsServer(gameserver)
         else:
             return ValueError
-        if self.call_when_server_ready is not None:
-            GLib.idle_add(self.call_when_server_ready, gameserver)
         gameserver.call_update()
 
 
@@ -308,9 +310,7 @@ class MasterServersList:
         self.q = Queue()
 
     def get_master_servers(self):
-        p = multiprocessing.Process(target=self.lists())
-        p.daemon = True
-        p.start()
+        self.lists()
 
     def lists(self):
         default_servers = [

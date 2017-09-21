@@ -13,31 +13,34 @@ class ListPage:
         self.data = None
         self.page = page
         self.box_outer = None
+        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
 
     def show(self, data=None):
-        if self.box_outer is None:
+        if data is not None:
             self.setup(data)
         else:
             self.win.add(self.box_outer)
         self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
 
+    def show_back(self, data=None):
+        self.win.add(self.box_outer)
+        self.win.set_title("%s:%s - Monni" % (self.data.host, self.data.port))
+
     def setup(self, data):
-        self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.servers_ui = Servers(self.win, self.home, self.load, self.page, self.box_outer, self)
-        self.data = data
+        if self.data is None:
+            self.data = data
+            servers_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-        servers_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+            self.setup_up_buttons()
 
-        self.setup_up_buttons()
+            servers_grid = Gtk.Grid()
+            servers_grid.set_hexpand(True)
+            servers_grid.set_vexpand(True)
+            self.servers_ui.setup(servers_grid, self.server_data)
+            servers_box.add(servers_grid)
 
-        servers_grid = Gtk.Grid()
-        servers_grid.set_hexpand(True)
-        servers_grid.set_vexpand(True)
-        self.servers_ui.setup(servers_grid, self.server_data)
-        servers_box.add(servers_grid)
-
-        self.box_outer.pack_start(servers_box, True, True, 0)
+            self.box_outer.pack_start(servers_box, True, True, 0)
 
         self.win.add(self.box_outer)
         self.win.show_all()
