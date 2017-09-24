@@ -19,6 +19,6 @@ class AutoUpdate:
 
     def update_servers(self):
         while True:
-            time.sleep(120)
+            time.sleep(60)
             for server in self.servers:
                 self.load.update_server_data(server)

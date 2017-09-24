@@ -2,21 +2,19 @@ import threading
 import configparser
 from queue import Queue
 
-import multiprocessing
-
-import time
 from gi.repository import GLib
 
+from monni.games.alerts.alerts import Alerts
 from monni.games.auto_update import AutoUpdate
 from monni.games.teeworlds.console import TeeworldsConsole
 from monni.games.teeworlds.master import TeeworldsMaster
 from monni.games.teeworlds.teeworlds import TeeworldsServer
 
 from monni.games.urbanterror.console import UrbanTerrorConsole
-from .serverslist import ServersList
-from .urbanterror.master import UrbanTerrorMaster
-from .game_server import GameServer
-from .urbanterror.urbanterror import UrbanServer
+from monni.games.serverslist import ServersList
+from monni.games.urbanterror.master import UrbanTerrorMaster
+from monni.games.game_server import GameServer
+from monni.games.urbanterror.urbanterror import UrbanServer
 
 
 class Console:
@@ -134,6 +132,9 @@ class Load:
         self.call_when_list_deleted = lambda: None
         self.call_when_list_updated = lambda: None
 
+        self.alerts = Alerts()
+        #self.alerts.new_alert('over_players', 0, '151.80.41.55:27960')
+
         self.masters = MasterServersList()
         self.masters.server_add = self.servers_add_new
 
@@ -146,7 +147,7 @@ class Load:
 
         self.auto_update = AutoUpdate(self.servers, self)
         self.q = Queue()
-        for _ in range(2):
+        for _ in range(8):
             t = ServerDownloader(self.q, None)
             t.setDaemon(True)
             t.start()
@@ -157,7 +158,7 @@ class Load:
     def servers_add(self, server_list, call_when_list_created):
 
         q = Queue()
-        for _ in range(3):
+        for _ in range(8):
             t = ServerDownloader(q, call_when_list_created)
             t.setDaemon(True)
             t.start()
@@ -185,7 +186,7 @@ class Load:
 
         q = Queue()
 
-        for _ in range(3):
+        for _ in range(4):
             t = ServerDownloader(q, call_when_list_created)
             t.setDaemon(True)
             t.start()
@@ -226,6 +227,7 @@ class Load:
             gameserver.add_call_update_method(call_method)
         else:
             gameserver.add_call_update_method(self.call_when_server_updated)
+        gameserver.add_call_update_method(self.alerts.check_server)
         self.servers.append(gameserver)
         return gameserver
 
